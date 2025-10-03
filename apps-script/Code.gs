@@ -16,7 +16,8 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    const body = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {};
+    const body =
+      e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {};
     const action = (body.action || "").toLowerCase();
     if (action === "add") {
       const entry = body.entry || {};
@@ -39,7 +40,7 @@ function listRSVPs_() {
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const obj = {};
-    headers.forEach((h, idx) => obj[String(h).trim()] = row[idx]);
+    headers.forEach((h, idx) => (obj[String(h).trim()] = row[idx]));
     out.push(obj);
   }
   return out;
@@ -48,9 +49,16 @@ function listRSVPs_() {
 function addRSVP_(entry) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
-  const headers = ["name","email","attending","guests","message","timestamp"];
+  const headers = [
+    "name",
+    "email",
+    "attending",
+    "guests",
+    "message",
+    "timestamp",
+  ];
   if (sh.getLastRow() === 0) {
-    sh.getRange(1,1,1,headers.length).setValues([headers]);
+    sh.getRange(1, 1, 1, headers.length).setValues([headers]);
   }
   const row = [
     entry.name || "",
@@ -58,7 +66,7 @@ function addRSVP_(entry) {
     entry.attending || "",
     Number(entry.guests || 0),
     entry.message || "",
-    entry.timestamp || new Date().toISOString()
+    entry.timestamp || new Date().toISOString(),
   ];
   sh.appendRow(row);
 }
