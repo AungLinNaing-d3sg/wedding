@@ -288,7 +288,7 @@ const FloatingTextarea = ({
 // Enhanced Button Component
 const Button = ({ children, variant = "primary", ...props }) => {
   const baseClasses =
-    "px-6 py-3 rounded-2xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4";
+    "min-w-[120px] text-[14px] font-semibold py-3 rounded-2xl font-medium transition-all duration-200 transform active:scale-95 focus:outline-none";
 
   const variants = {
     primary: `bg-[var(--navy)] text-white hover:bg-[var(--navy-dark)] focus:ring-[var(--navy-light)]`,
@@ -717,7 +717,7 @@ const RSVP = React.forwardRef(
               </div>
 
               {isAdmin && (
-                <div className="flex flex-wrap gap-3 justify-center">
+                <div className="flex flex-wrap gap-3 justify-center mb-[2px]">
                   <Button
                     type="button"
                     variant="secondary"
@@ -1157,54 +1157,56 @@ export default function App() {
       />
 
       {/* Main Content */}
-      <main ref={containerRef} className="max-w-7xl mx-auto px-4 py-6">
-        <div
-          className="mx-auto rounded-3xl shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20"
-          style={{ width: bookSize.width, height: bookSize.height }}
-        >
-          <HTMLFlipBook
-            width={bookSize.width}
-            height={bookSize.height}
-            size="fixed"
-            className="w-full h-full"
-            ref={bookRef}
-            showCover={true}
-            mobileScrollSupport={true}
-            onFlip={(e) => setPage(e.data)}
+      <div className="p-4 py-6">
+        <main ref={containerRef} className="max-w-7xl mx-auto">
+          <div
+            className="mx-auto rounded-3xl shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20"
+            style={{ width: bookSize.width, height: bookSize.height }}
           >
-            {pages.map((p) => (
-              <div key={p.key} className="w-full h-full">
-                {p.el}
-              </div>
+            <HTMLFlipBook
+              width={bookSize.width}
+              height={bookSize.height}
+              size="fixed"
+              className="w-full h-full"
+              ref={bookRef}
+              showCover={true}
+              mobileScrollSupport={true}
+              onFlip={(e) => setPage(e.data)}
+            >
+              {pages.map((p) => (
+                <div key={p.key} className="w-full h-full">
+                  {p.el}
+                </div>
+              ))}
+            </HTMLFlipBook>
+          </div>
+
+          {/* Page dots */}
+          <div className="mt-6 flex items-center justify-center gap-3">
+            {pages.map((p, i) => (
+              <button
+                key={p.key}
+                onClick={() => {
+                  setPage(i);
+                  bookRef.current?.pageFlip().turnToPage(i);
+                }}
+                className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                  i === page
+                    ? "bg-white shadow-lg scale-125"
+                    : "bg-white/50 hover:bg-white/70"
+                }`}
+                aria-label={`Go to ${p.title}`}
+              />
             ))}
-          </HTMLFlipBook>
-        </div>
+          </div>
 
-        {/* Page dots */}
-        <div className="mt-6 flex items-center justify-center gap-3">
-          {pages.map((p, i) => (
-            <button
-              key={p.key}
-              onClick={() => {
-                setPage(i);
-                bookRef.current?.pageFlip().turnToPage(i);
-              }}
-              className={`w-4 h-4 rounded-full transition-all duration-300 ${
-                i === page
-                  ? "bg-white shadow-lg scale-125"
-                  : "bg-white/50 hover:bg-white/70"
-              }`}
-              aria-label={`Go to ${p.title}`}
-            />
-          ))}
-        </div>
-
-        {/* Mobile instructions */}
-        <p className="mt-4 text-center text-sm text-white/80 max-w-md mx-auto">
-          📱 <strong>Mobile tip:</strong> Swipe or tap page edges to flip. Use
-          buttons above for easier navigation.
-        </p>
-      </main>
+          {/* Mobile instructions */}
+          <p className="mt-4 text-center text-sm text-white/80 max-w-md mx-auto">
+            📱 <strong>Mobile tip:</strong> Swipe or tap page edges to flip. Use
+            buttons above for easier navigation.
+          </p>
+        </main>
+      </div>
 
       {/* Footer */}
       <footer className="pb-8 text-center text-white/70 text-sm px-4">
