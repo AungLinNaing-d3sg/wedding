@@ -74,15 +74,32 @@ async function fetchRSVPsFromSheets() {
   return Array.isArray(data) ? data : data?.rows || [];
 }
 
+// --- React: addRSVPToSheets using GET (no CORS issues) ---
 async function addRSVPToSheets(entry) {
-  if (!isSheetsConfigured()) throw new Error("SHEETS_URL_NOT_CONFIGURED");
-  const res = await fetch(SHEETS_WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "add", entry }),
+  if (!SHEETS_WEB_APP_URL) throw new Error("SHEETS_URL_NOT_CONFIGURED");
+
+  // Build query parameters
+  const params = new URLSearchParams({
+    action: "add",
+    name: entry.name || "",
+    email: entry.email || "",
+    attending: entry.attending || "",
+    guests: entry.guests ? String(entry.guests) : "0",
+    message: entry.message || "",
+    timestamp: new Date().toISOString(),
   });
-  if (!res.ok) throw new Error(`ADD_FAILED_${res.status}`);
-  return res.json();
+
+  const url = `${SHEETS_WEB_APP_URL}?${params.toString()}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`ADD_FAILED_${res.status}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("RSVP add error:", err);
+    throw err;
+  }
 }
 
 // ---------------------------------
@@ -638,13 +655,37 @@ const RSVP = React.forwardRef(
               position: "relative",
               zIndex: 1,
             }}
-            onPointerDownCapture={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onPointerUpCapture={(e) => e.stopPropagation()}
-            onTouchStartCapture={(e) => e.stopPropagation()}
-            onTouchEndCapture={(e) => e.stopPropagation()}
-            onMouseDownCapture={(e) => e.stopPropagation()}
-            onClickCapture={(e) => e.stopPropagation()}
+            onPointerDownCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onPointerUpCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onTouchStartCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onTouchEndCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
+            onMouseDownCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
+            onClickCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <FloatingInput
@@ -720,16 +761,27 @@ const RSVP = React.forwardRef(
                 <div className="flex flex-wrap gap-3 justify-center mb-[2px]">
                   <Button
                     type="button"
+                    data-ignore-stop
                     variant="secondary"
                     onClick={onRefresh}
                     disabled={loading}
                   >
                     {loading ? "Refreshing..." : "Refresh List"}
                   </Button>
-                  <Button type="button" variant="accent" onClick={onExportXLSX}>
+                  <Button
+                    type="button"
+                    data-ignore-stop
+                    variant="accent"
+                    onClick={onExportXLSX}
+                  >
                     Export Excel
                   </Button>
-                  <Button type="button" variant="baby" onClick={onExportCSV}>
+                  <Button
+                    type="button"
+                    data-ignore-stop
+                    variant="baby"
+                    onClick={onExportCSV}
+                  >
                     Export CSV
                   </Button>
                 </div>
