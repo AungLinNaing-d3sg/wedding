@@ -298,7 +298,7 @@ const Button = ({
   ...props
 }) => {
   const baseClasses =
-    "px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform hover:scale-105 focus:outline-none text-sm sm:text-base";
+    "px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform focus:outline-none text-sm sm:text-base";
 
   const variants = {
     primary: `bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] text-white hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-[#8b5cf680] ${className}`,
@@ -477,7 +477,7 @@ const EventDetails = React.forwardRef((props, ref) => {
             </div>
           ))}
         </div>
-        <div className="mt-4 sm:mt-6 md:mt-8 max-w-4xl mx-auto rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)] border border-slate-200 shadow-lg">
+        {/* <div className="mt-4 sm:mt-6 md:mt-8 max-w-4xl mx-auto rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)] border border-slate-200 shadow-lg">
           <h3
             className="font-bold text-base sm:text-lg mb-1 sm:mb-2 flex items-center gap-2"
             style={{ color: theme.navy }}
@@ -488,7 +488,7 @@ const EventDetails = React.forwardRef((props, ref) => {
             <strong>Black-tie optional.</strong> Navy & baby blue accents
             welcome ✨
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
