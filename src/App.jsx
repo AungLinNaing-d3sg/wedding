@@ -655,13 +655,37 @@ const RSVP = React.forwardRef(
               position: "relative",
               zIndex: 1,
             }}
-            onPointerDownCapture={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onPointerUpCapture={(e) => e.stopPropagation()}
-            onTouchStartCapture={(e) => e.stopPropagation()}
-            onTouchEndCapture={(e) => e.stopPropagation()}
-            onMouseDownCapture={(e) => e.stopPropagation()}
-            onClickCapture={(e) => e.stopPropagation()}
+            onPointerDownCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onPointerUpCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onTouchStartCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onTouchEndCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
+            onMouseDownCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
+            onClickCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <FloatingInput
@@ -737,16 +761,27 @@ const RSVP = React.forwardRef(
                 <div className="flex flex-wrap gap-3 justify-center mb-[2px]">
                   <Button
                     type="button"
+                    data-ignore-stop
                     variant="secondary"
                     onClick={onRefresh}
                     disabled={loading}
                   >
                     {loading ? "Refreshing..." : "Refresh List"}
                   </Button>
-                  <Button type="button" variant="accent" onClick={onExportXLSX}>
+                  <Button
+                    type="button"
+                    data-ignore-stop
+                    variant="accent"
+                    onClick={onExportXLSX}
+                  >
                     Export Excel
                   </Button>
-                  <Button type="button" variant="baby" onClick={onExportCSV}>
+                  <Button
+                    type="button"
+                    data-ignore-stop
+                    variant="baby"
+                    onClick={onExportCSV}
+                  >
                     Export CSV
                   </Button>
                 </div>
