@@ -10,24 +10,29 @@ const theme = {
   baby: "#cfe8ff",
   baby2: "#e8f3ff",
   ink: "#0f172a",
-  accent: "#8b5cf6", // Added accent color for better visual hierarchy
+  accent: "#8b5cf6",
   success: "#10b981",
   error: "#ef4444",
 };
 
-// Base dimensions & responsiveness config
-const BASE_W = 900;
-const BASE_H = 620;
-const ASPECT = BASE_H / BASE_W;
-const MIN_W = 320;
-const MAX_W = 1200;
+// Responsive dimensions config
+const getBookDimensions = () => {
+  if (typeof window === "undefined") return { width: 900, height: 620 };
 
-// Responsive breakpoints
-const BREAKPOINTS = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
+  const screenWidth = window.innerWidth;
+  if (screenWidth < 640) {
+    // Mobile
+    return { width: Math.min(350, screenWidth - 40), height: 620 };
+  } else if (screenWidth < 768) {
+    // Small tablet
+    return { width: 600, height: 650 };
+  } else if (screenWidth < 1024) {
+    // Tablet
+    return { width: 700, height: 650 };
+  } else {
+    // Desktop
+    return { width: 900, height: 620 };
+  }
 };
 
 // ---------------------------------
@@ -157,16 +162,16 @@ const FloatingInput = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="relative mt-6">
+    <div className="relative mt-4 sm:mt-6">
       <input
         type={type}
         value={value}
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="block w-full px-4 pt-6 pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-2xl 
+        className="block w-full px-3 sm:px-4 py-2 pb-1.5 sm:pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  placeholder-transparent peer"
+                  placeholder-[#3333] peer text-sm sm:text-base"
         placeholder={placeholder}
         required={required}
         style={{
@@ -176,18 +181,18 @@ const FloatingInput = ({
         }}
         {...props}
       />
-      <label
-        className={`absolute left-4 transition-all duration-200 pointer-events-none
+      {/* <label
+        className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
           ${
             isFocused || value
-              ? "top-2 text-xs text-[var(--navy)] font-medium"
-              : "top-4 text-slate-500"
+              ? "top-1.5 sm:top-2 text-xs text-[var(--navy)] font-medium"
+              : "top-3 sm:top-4 text-slate-500"
           }
-          peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
+          peer-focus:top-1.5 sm:peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
         style={{ "--navy": theme.navy }}
       >
         {label} {required && "*"}
-      </label>
+      </label> */}
     </div>
   );
 };
@@ -203,15 +208,15 @@ const FloatingSelect = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="relative mt-6">
+    <div className="relative mt-4 sm:mt-6">
       <select
         value={value}
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="block w-full px-4 pt-6 pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-2xl 
+        className="block w-full px-3 sm:px-4 pt-5 sm:pt-6 pb-1.5 sm:pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  appearance-none cursor-pointer peer"
+                  appearance-none cursor-pointer peer text-sm sm:text-base"
         required={required}
         style={{
           transform: "translateZ(0)",
@@ -227,20 +232,20 @@ const FloatingSelect = ({
         ))}
       </select>
       <label
-        className={`absolute left-4 transition-all duration-200 pointer-events-none
+        className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
           ${
             isFocused || value
-              ? "top-2 text-xs text-[var(--navy)] font-medium"
-              : "top-4 text-slate-500"
+              ? "top-1.5 sm:top-2 text-xs text-[var(--navy)] font-medium"
+              : "top-3 sm:top-4 text-slate-500"
           }
-          peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
+          peer-focus:top-1.5 sm:peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
         style={{ "--navy": theme.navy }}
       >
         {label} {required && "*"}
       </label>
-      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+      <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg
-          className="w-4 h-4 text-slate-500"
+          className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -268,16 +273,16 @@ const FloatingTextarea = ({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="relative mt-6">
+    <div className="relative mt-4 sm:mt-6">
       <textarea
         value={value}
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         rows={rows}
-        className="block w-full px-4 pt-6 pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-2xl 
+        className="block w-full px-3 sm:px-4 pt-5 sm:pt-6 pb-1.5 sm:pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  placeholder-transparent resize-none peer"
+                  placeholder-transparent resize-none peer text-sm sm:text-base"
         placeholder={placeholder}
         style={{
           transform: "translateZ(0)",
@@ -287,13 +292,13 @@ const FloatingTextarea = ({
         {...props}
       />
       <label
-        className={`absolute left-4 transition-all duration-200 pointer-events-none
+        className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
           ${
             isFocused || value
-              ? "top-2 text-xs text-[var(--navy)] font-medium"
-              : "top-4 text-slate-500"
+              ? "top-1.5 sm:top-2 text-xs text-[var(--navy)] font-medium"
+              : "top-3 sm:top-4 text-slate-500"
           }
-          peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
+          peer-focus:top-1.5 sm:peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
         style={{ "--navy": theme.navy }}
       >
         {label}
@@ -303,15 +308,20 @@ const FloatingTextarea = ({
 };
 
 // Enhanced Button Component
-const Button = ({ children, variant = "primary", ...props }) => {
+const Button = ({
+  children,
+  variant = "primary",
+  className = "",
+  ...props
+}) => {
   const baseClasses =
-    "min-w-[120px] text-[14px] font-semibold py-3 rounded-2xl font-medium transition-all duration-200 transform active:scale-95 focus:outline-none";
+    "pmin-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform focus:outline-none text-sm sm:text-base";
 
   const variants = {
-    primary: `bg-[var(--navy)] text-white hover:bg-[var(--navy-dark)] focus:ring-[var(--navy-light)]`,
-    secondary: `bg-white text-slate-900 ring-2 ring-slate-300 hover:bg-slate-50 focus:ring-slate-400`,
-    accent: `bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)] focus:ring-[var(--accent-light)]`,
-    baby: `bg-[var(--baby)] text-[var(--navy)] ring-2 ring-[var(--navy)] hover:bg-[var(--baby-dark)] focus:ring-[var(--baby)]`,
+    primary: `bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] text-white hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-[#8b5cf680] ${className}`,
+    secondary: `bg-white text-slate-900 ring-1 sm:ring-2 ring-slate-300 hover:bg-slate-50 focus:ring-slate-400 ${className}`,
+    accent: `bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)] focus:ring-[var(--accent-light)] ${className}`,
+    baby: `bg-[var(--baby)] text-[var(--navy)] ring-1 sm:ring-2 ring-[var(--navy)] hover:bg-[var(--baby-dark)] focus:ring-[var(--baby)] ${className}`,
   };
 
   return (
@@ -319,8 +329,6 @@ const Button = ({ children, variant = "primary", ...props }) => {
       className={`${baseClasses} ${variants[variant]}`}
       style={{
         "--navy": theme.navy,
-        "--navy-dark": "#0a1f38",
-        "--navy-light": "#0b254580",
         "--accent": theme.accent,
         "--accent-dark": "#7c3aed",
         "--accent-light": "#8b5cf680",
@@ -347,27 +355,31 @@ const HomePage = React.forwardRef(
       >
         {/* Top ribbon */}
         <div
-          className="px-4 sm:px-6 py-3 border-b border-black/20 grid grid-cols-3 text-xs tracking-[0.3em] uppercase bg-gradient-to-r from-white to-slate-50"
+          className="px-2 sm:px-4 md:px-6 py-2 sm:py-3 border-b border-black/20 grid grid-cols-3 text-[10px] xs:text-xs tracking-[0.2em] sm:tracking-[0.3em] uppercase bg-gradient-to-r from-white to-slate-50"
           style={{ fontFamily: "Inter, system-ui, sans-serif" }}
         >
-          <div className="text-left text-slate-600">{dateText}</div>
+          <div className="text-left text-slate-600 truncate pr-1">
+            {dateText}
+          </div>
           <div
-            className="text-center font-semibold"
+            className="text-center font-semibold truncate px-1"
             style={{ color: theme.navy }}
           >
             {couple}
           </div>
-          <div className="text-right text-slate-600">{locationText}</div>
+          <div className="text-right text-slate-600 truncate pl-1">
+            {locationText}
+          </div>
         </div>
 
         {/* Masthead */}
-        <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-black/10 bg-gradient-to-br from-white to-slate-50">
+        <div className="px-3 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 border-b border-black/10 bg-gradient-to-br from-white to-slate-50">
           <div
-            className="text-center text-3xl sm:text-5xl md:text-6xl font-serif"
+            className="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif"
             style={{ fontFamily: '"Playfair Display", serif' }}
           >
             <span
-              className="inline-block px-4 py-2 rounded-lg bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] text-white shadow-lg"
+              className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] text-white shadow-lg text-sm sm:text-base"
               style={{
                 "--navy": theme.navy,
                 "--accent": theme.accent,
@@ -377,18 +389,18 @@ const HomePage = React.forwardRef(
             </span>
           </div>
           <div
-            className="mt-4 text-center text-xl sm:text-2xl tracking-widest"
+            className="mt-2 sm:mt-4 text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
             style={{ fontFamily: "Cinzel, serif" }}
           >
-            <span className="border-y border-black/20 py-3 inline-block text-slate-700">
+            <span className="border-y border-black/20 py-2 sm:py-3 inline-block text-slate-700 text-sm sm:text-base">
               WEDDING OF THE YEAR
             </span>
           </div>
         </div>
 
         {/* Photo (fills remaining height) */}
-        <div className="flex-1 p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
-          <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden border-4 border-white">
+        <div className="flex-1 p-2 sm:p-4 md:p-6 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+          <div className="w-full h-full rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg sm:shadow-xl md:shadow-2xl overflow-hidden border-2 sm:border-4 border-white">
             <img
               src={coverImage}
               alt="Cover"
@@ -408,18 +420,18 @@ const EventDetails = React.forwardRef((props, ref) => {
   const items = [
     {
       label: "Ceremony",
-      date: "Fri, Nov 7, 2025",
+      date: "Thus, 06 Nov 2025",
       time: "3:00 PM",
-      location: "Yangon Cathedral, Yangon",
-      note: "Doors open 2:30 PM.",
+      location: "Judson Chruch",
+      note: "Time: 3PM - 5PM",
       icon: "💒",
     },
     {
       label: "Reception",
       date: "Fri, Nov 7, 2025",
       time: "6:00 PM",
-      location: "The Strand Ballroom, Yangon",
-      note: "Dinner & dancing to follow.",
+      location: "Sedona Hotel, Yangon",
+      note: "Time: 6PM - 9PM",
       icon: "🎉",
     },
   ];
@@ -429,16 +441,16 @@ const EventDetails = React.forwardRef((props, ref) => {
       className="w-full h-full bg-white flex flex-col overflow-hidden"
     >
       <div
-        className="h-3 w-full bg-gradient-to-r from-[var(--baby)] via-[var(--navy)] to-[var(--accent)]"
+        className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--baby)] via-[var(--navy)] to-[var(--accent)]"
         style={{
           "--navy": theme.navy,
           "--baby": theme.baby,
           "--accent": theme.accent,
         }}
       />
-      <div className="px-4 sm:px-6 py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50">
+      <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50">
         <h2
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2"
+          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2"
           style={{
             color: theme.navy,
             fontFamily: "Playfair Display, serif",
@@ -449,30 +461,32 @@ const EventDetails = React.forwardRef((props, ref) => {
         >
           Event Details
         </h2>
-        <p className="text-center text-slate-600 mb-8 max-w-md mx-auto">
+        <p className="text-center text-slate-600 mb-4 sm:mb-6 md:mb-8 max-w-md mx-auto text-sm sm:text-base px-2">
           We're so excited to celebrate with you. Here's the plan for the day.
         </p>
-        <div className="grid gap-6 max-w-4xl mx-auto">
+        <div className="grid gap-3 sm:gap-4 md:gap-6 max-w-4xl mx-auto px-2">
           {items.map((it, idx) => (
             <div
               key={idx}
-              className="rounded-2xl p-6 shadow-lg border border-slate-200 bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-md sm:shadow-lg border border-slate-200 bg-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              <div className="flex items-start gap-4">
-                <div className="text-3xl flex-shrink-0">{it.icon}</div>
-                <div className="flex-1">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
+                <div className="text-2xl sm:text-3xl flex-shrink-0">
+                  {it.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                     <div className="text-xs uppercase tracking-widest font-semibold text-slate-500">
                       {it.label}
                     </div>
-                    <div className="text-lg font-bold text-slate-900">
-                      {it.date} · {it.time}
+                    <div className="text-base sm:text-lg font-bold text-slate-900">
+                      {it.date}
                     </div>
                   </div>
-                  <div className="mt-2 text-slate-700 font-medium">
+                  <div className="mt-1 sm:mt-2 text-slate-700 font-medium text-sm sm:text-base">
                     {it.location}
                   </div>
-                  <div className="mt-3 text-slate-600 text-sm bg-slate-50 rounded-lg p-3">
+                  <div className="mt-2 sm:mt-3 text-slate-600 text-xs sm:text-sm bg-slate-50 rounded-lg p-2 sm:p-3">
                     {it.note}
                   </div>
                 </div>
@@ -480,18 +494,18 @@ const EventDetails = React.forwardRef((props, ref) => {
             </div>
           ))}
         </div>
-        <div className="mt-8 max-w-4xl mx-auto rounded-2xl p-6 bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)] border border-slate-200 shadow-lg">
+        {/* <div className="mt-4 sm:mt-6 md:mt-8 max-w-4xl mx-auto rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)] border border-slate-200 shadow-lg">
           <h3
-            className="font-bold text-lg mb-2 flex items-center gap-2"
+            className="font-bold text-base sm:text-lg mb-1 sm:mb-2 flex items-center gap-2"
             style={{ color: theme.navy }}
           >
             <span>👗</span> Dress Code
           </h3>
-          <p className="text-slate-700">
+          <p className="text-slate-700 text-sm sm:text-base">
             <strong>Black-tie optional.</strong> Navy & baby blue accents
             welcome ✨
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
@@ -507,16 +521,16 @@ const LoveStory = React.forwardRef((props, ref) => {
       className="w-full h-full bg-white flex flex-col overflow-hidden"
     >
       <div
-        className="h-3 w-full bg-gradient-to-r from-[var(--accent)] via-[var(--baby)] to-[var(--navy)]"
+        className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--accent)] via-[var(--baby)] to-[var(--navy)]"
         style={{
           "--navy": theme.navy,
           "--baby": theme.baby,
           "--accent": theme.accent,
         }}
       />
-      <div className="px-4 sm:px-6 py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50">
+      <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50">
         <h2
-          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4"
+          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-3 sm:mb-4"
           style={{
             color: theme.navy,
             fontFamily: "Playfair Display, serif",
@@ -527,15 +541,15 @@ const LoveStory = React.forwardRef((props, ref) => {
         >
           Our Love Story
         </h2>
-        <div className="max-w-4xl mx-auto prose prose-lg">
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
-            <p className="text-slate-700 leading-relaxed text-lg">
+        <div className="max-w-4xl mx-auto prose prose-sm sm:prose-lg px-2">
+          <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-md sm:shadow-lg border border-slate-200">
+            <p className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg">
               Fourteen years ago, a chance meeting at a cosmetics store sparked
               a playful hello. Life pulled us to different places and studies
               abroad, but fate had its own flipbook— our pages turned back to
               one another.
             </p>
-            <p className="text-slate-700 leading-relaxed text-lg mt-4">
+            <p className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg mt-2 sm:mt-3 md:mt-4">
               Today, we're writing the headline we waited for:{" "}
               <em className="font-semibold" style={{ color: theme.navy }}>
                 "Hla Thu Zar & Thaw Zin Htet — together, always."
@@ -543,11 +557,11 @@ const LoveStory = React.forwardRef((props, ref) => {
             </p>
           </div>
         </div>
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <div className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-4xl mx-auto px-2">
           {[1, 2, 3].map((n, index) => (
             <div
               key={n}
-              className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border-2 border-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="aspect-[4/3] rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
               <img
                 className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
@@ -584,7 +598,7 @@ const RSVP = React.forwardRef(
       name: "",
       email: "",
       attending: "Yes",
-      guests: 1,
+      guests: "",
       message: "",
     });
     const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
@@ -609,16 +623,16 @@ const RSVP = React.forwardRef(
         style={{ pointerEvents: "auto" }}
       >
         <div
-          className="h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)]"
+          className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)] overflow-x-scroll"
           style={{
             "--navy": theme.navy,
             "--baby": theme.baby,
             "--accent": theme.accent,
           }}
         />
-        <div className="px-4 sm:px-6 py-6 flex-1 overflow-hidden bg-gradient-to-br from-white to-slate-50">
+        <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 flex-1 overflow-hidden bg-gradient-to-br from-white to-slate-50">
           <h2
-            className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2"
+            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2"
             style={{
               color: theme.navy,
               fontFamily: "Playfair Display, serif",
@@ -631,25 +645,30 @@ const RSVP = React.forwardRef(
           </h2>
 
           {canShowSheetsWarning(configured, isAdmin) && (
-            <div className="mt-3 mx-auto max-w-2xl text-sm p-4 rounded-2xl bg-yellow-50 text-yellow-800 ring-2 ring-yellow-200 flex items-center gap-3">
-              <span className="text-lg">⚠️</span>
-              <div>
-                <strong>Not connected to Google Sheets yet.</strong> Add your{" "}
-                <code className="bg-yellow-100 px-2 py-1 rounded">
-                  VITE_SHEETS_WEB_APP_URL
-                </code>{" "}
-                and redeploy.
+            <div className="mt-2 sm:mt-3 mx-auto max-w-2xl text-xs sm:text-sm p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl bg-yellow-50 text-yellow-800 ring-1 sm:ring-2 ring-yellow-200 flex items-start sm:items-center gap-2 sm:gap-3">
+              <span className="text-base sm:text-lg mt-0.5">⚠️</span>
+              <div className="flex-1">
+                <strong className="text-sm sm:text-base">
+                  Not connected to Google Sheets yet.
+                </strong>{" "}
+                <span className="block sm:inline">
+                  Add your{" "}
+                  <code className="bg-yellow-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">
+                    VITE_SHEETS_WEB_APP_URL
+                  </code>{" "}
+                  and redeploy.
+                </span>
               </div>
             </div>
           )}
 
-          <p className="text-center text-slate-600 mb-8 max-w-md mx-auto">
+          <p className="text-center text-slate-600 mb-0 sm:mb-6 md:mb-8 max-w-md mx-auto text-xs sm:text-base px-2">
             Let us know you're coming. Submissions save to our Google Sheet.
           </p>
 
           <form
             onSubmit={handleSubmit}
-            className="max-w-2xl mx-auto grid gap-6 overflow-auto pr-1"
+            className="max-w-2xl mx-auto grid gap-3 sm:gap-4 md:gap-6 overflow-auto pr-1"
             style={{
               transform: "translateZ(0)",
               position: "relative",
@@ -687,7 +706,7 @@ const RSVP = React.forwardRef(
               // other form logic...
             }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <FloatingInput
                 label="Full Name"
                 value={form.name}
@@ -705,7 +724,7 @@ const RSVP = React.forwardRef(
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <FloatingSelect
                 label="Attending?"
                 value={form.attending}
@@ -715,10 +734,12 @@ const RSVP = React.forwardRef(
               />
               <FloatingInput
                 label="Guests (including you)"
-                type="number"
-                min={1}
+                type="text"
                 value={form.guests}
-                onChange={(e) => update("guests", Number(e.target.value))}
+                onChange={(e) => {
+                  const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
+                  update("guests", Number(onlyNumbers));
+                }}
                 placeholder="Number of guests"
                 required
               />
@@ -732,41 +753,51 @@ const RSVP = React.forwardRef(
               rows={3}
             />
 
-            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-4">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between pt-3 sm:pt-4 mb-2">
+              <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
                 <Button
                   type="submit"
                   variant="primary"
                   disabled={saveState === "saving"}
-                  className="min-w-[120px] text-[14px] font-semibold py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200"
+                  className="min-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-2 sm:focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200 w-full xs:w-auto"
                 >
-                  {saveState === "saving" ? "Saving..." : "Submit RSVP"}
+                  {saveState === "saving" ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Saving...
+                    </span>
+                  ) : (
+                    "Submit RSVP"
+                  )}
                 </Button>
 
-                {saveState === "success" && (
-                  <span className="flex items-center gap-2 text-sm font-medium text-green-600">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    Saved successfully!
-                  </span>
-                )}
-                {saveState === "error" && (
-                  <span className="flex items-center gap-2 text-sm font-medium text-red-600">
-                    <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                    Failed to save
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {saveState === "success" && (
+                    <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-green-600">
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></span>
+                      Saved!
+                    </span>
+                  )}
+                  {saveState === "error" && (
+                    <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-red-600">
+                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full"></span>
+                      Failed
+                    </span>
+                  )}
+                </div>
               </div>
 
               {isAdmin && (
-                <div className="flex flex-wrap gap-3 justify-center mb-[2px]">
+                <div className="flex flex-wrap gap-2 sm:gap-3 justify-center w-full sm:w-auto mb-2">
                   <Button
                     type="button"
                     data-ignore-stop
                     variant="secondary"
                     onClick={onRefresh}
                     disabled={loading}
+                    className="text-xs sm:text-sm"
                   >
-                    {loading ? "Refreshing..." : "Refresh List"}
+                    {loading ? "Refreshing..." : "Refresh"}
                   </Button>
                   <Button
                     type="button"
@@ -790,16 +821,16 @@ const RSVP = React.forwardRef(
           </form>
 
           {isAdmin ? (
-            <div className="mt-8 max-w-6xl mx-auto">
+            <div className="mt-4 sm:mt-6 md:mt-8 max-w-6xl mx-auto">
               <h3
-                className="font-bold text-lg mb-4 flex items-center gap-2"
+                className="font-bold text-base sm:text-lg mb-2 sm:mb-3 md:mb-4 flex items-center gap-2"
                 style={{ color: theme.navy }}
               >
                 <span>📋</span> Current Responses ({entries.length})
               </h3>
-              <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
-                <div className="overflow-x-auto max-h-64">
-                  <table className="min-w-full text-sm">
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto max-h-32 sm:max-h-48 md:max-h-64">
+                  <table className="min-w-full text-xs sm:text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)]">
                         {[
@@ -812,7 +843,7 @@ const RSVP = React.forwardRef(
                         ].map((h) => (
                           <th
                             key={h}
-                            className="text-left p-4 whitespace-nowrap uppercase text-xs tracking-wide font-semibold text-slate-700"
+                            className="text-left p-2 sm:p-3 md:p-4 whitespace-nowrap uppercase tracking-wide font-semibold text-slate-700 text-xs"
                           >
                             {h}
                           </th>
@@ -825,15 +856,15 @@ const RSVP = React.forwardRef(
                           key={i}
                           className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
                         >
-                          <td className="p-4 whitespace-nowrap font-medium text-slate-900">
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap font-medium text-slate-900 max-w-[80px] sm:max-w-none truncate">
                             {r.name}
                           </td>
-                          <td className="p-4 whitespace-nowrap text-slate-600">
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-600 max-w-[100px] sm:max-w-none truncate">
                             {r.email}
                           </td>
-                          <td className="p-4 whitespace-nowrap">
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
                             <span
-                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${
                                 r.attending === "Yes"
                                   ? "bg-green-100 text-green-800"
                                   : "bg-red-100 text-red-800"
@@ -842,15 +873,15 @@ const RSVP = React.forwardRef(
                               {r.attending}
                             </span>
                           </td>
-                          <td className="p-4 whitespace-nowrap text-slate-600">
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-600">
                             {r.guests}
                           </td>
-                          <td className="p-4 min-w-[16rem] text-slate-600">
+                          <td className="p-2 sm:p-3 md:p-4 text-slate-600 max-w-[120px] sm:max-w-[16rem] truncate">
                             {r.message}
                           </td>
-                          <td className="p-4 whitespace-nowrap text-slate-500 text-xs">
+                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-500 text-xs">
                             {r.timestamp
-                              ? new Date(r.timestamp).toLocaleString()
+                              ? new Date(r.timestamp).toLocaleDateString()
                               : ""}
                           </td>
                         </tr>
@@ -861,7 +892,7 @@ const RSVP = React.forwardRef(
               </div>
             </div>
           ) : (
-            <p className="text-center text-slate-500 mt-8">
+            <p className="text-center text-slate-500 mt-4 sm:mt-6 md:mt-8 text-sm sm:text-base">
               Guest list is private. Your response will only be visible to the
               wedding organizers.
             </p>
@@ -897,20 +928,23 @@ function AdminLoginDialog({ open, onClose, onSuccess }) {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4">
+      <div className="w-full max-w-xs sm:max-w-md rounded-xl sm:rounded-2xl md:rounded-3xl bg-white p-4 sm:p-5 md:p-6 shadow-xl sm:shadow-2xl border border-slate-200 mx-2">
         <div className="text-center mb-2">
-          <div className="w-12 h-12 bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <span className="text-white text-lg">🔐</span>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
+            <span className="text-white text-base sm:text-lg">🔐</span>
           </div>
-          <h3 className="text-xl font-bold" style={{ color: theme.navy }}>
+          <h3
+            className="text-lg sm:text-xl font-bold"
+            style={{ color: theme.navy }}
+          >
             Admin Login
           </h3>
-          <p className="mt-2 text-sm text-slate-600">
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-600">
             Enter the admin code to view responses and export tools.
           </p>
         </div>
-        <form onSubmit={submit} className="mt-4 space-y-4">
+        <form onSubmit={submit} className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
           <FloatingInput
             label="Admin Code"
             value={code}
@@ -919,16 +953,25 @@ function AdminLoginDialog({ open, onClose, onSuccess }) {
             autoFocus
           />
           {error && (
-            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-xl">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-red-600 bg-red-50 p-2 sm:p-3 rounded-lg sm:rounded-xl">
               <span>⚠️</span>
               {error}
             </div>
           )}
-          <div className="flex gap-3 justify-end pt-2">
-            <Button type="button" variant="secondary" onClick={onClose}>
+          <div className="flex gap-2 sm:gap-3 justify-end pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="text-xs sm:text-sm"
+            >
               Cancel
             </Button>
-            <Button type="submit" variant="primary">
+            <Button
+              type="submit"
+              variant="primary"
+              className="text-xs sm:text-sm"
+            >
               Login
             </Button>
           </div>
@@ -946,7 +989,7 @@ export default function App() {
   const containerRef = useRef(null);
   const [page, setPage] = useState(0);
 
-  const [bookSize, setBookSize] = useState({ width: BASE_W, height: BASE_H });
+  const [bookSize, setBookSize] = useState(getBookDimensions());
   const [rsvps, setRsvps] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saveState, setSaveState] = useState("idle");
@@ -1104,24 +1147,17 @@ export default function App() {
   // Responsive measurement
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const el = containerRef.current;
-    const measure = () => {
-      const cw = Math.max(MIN_W, Math.min(MAX_W, el?.clientWidth || BASE_W));
-      const ch = Math.round(cw * ASPECT);
-      setBookSize({ width: cw, height: ch });
-    };
-    measure();
 
-    let ro;
-    if (window.ResizeObserver && el) {
-      ro = new ResizeObserver(measure);
-      ro.observe(el);
-    } else {
-      window.addEventListener("resize", measure);
-    }
+    const updateBookSize = () => {
+      const newSize = getBookDimensions();
+      setBookSize(newSize);
+    };
+
+    updateBookSize();
+    window.addEventListener("resize", updateBookSize);
+
     return () => {
-      if (ro && el) ro.unobserve(el);
-      window.removeEventListener("resize", measure);
+      window.removeEventListener("resize", updateBookSize);
     };
   }, []);
 
@@ -1155,20 +1191,25 @@ export default function App() {
       }}
     >
       {/* Header */}
-      <header className="max-w-7xl mx-auto px-4 pt-6 pb-4">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <h1 className="text-white text-xl md:text-2xl font-bold text-center sm:text-left tracking-wide">
-            Hla Thu Zar & Thaw Zin Htet — Wedding Invitation
+      <header className="max-w-7xl mx-auto px-3 sm:px-4 pt-4 sm:pt-6 pb-2 sm:pb-4">
+        <div className="flex flex-col xs:flex-row items-center justify-between gap-2 sm:gap-3 md:gap-4">
+          <h1 className="text-white text-lg sm:text-xl md:text-2xl font-bold text-center xs:text-left tracking-wide leading-tight">
+            Hla Thu Zar & Thaw Zin Htet
+            <br className="xs:hidden" />
+            <span className="text-white/80 text-sm sm:text-base">
+              {" "}
+              Wedding Invitation
+            </span>
           </h1>
-          <div className="flex items-center gap-3 flex-wrap justify-center">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
             {isAdmin ? (
               <>
-                <span className="px-3 py-1.5 rounded-xl text-sm bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm">
-                  👑 Admin Mode
+                <span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm">
+                  👑 Admin
                 </span>
                 <button
                   onClick={logoutAdmin}
-                  className="px-4 py-2.5 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-sm backdrop-blur-sm"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-xs sm:text-sm backdrop-blur-sm"
                 >
                   Logout
                 </button>
@@ -1176,24 +1217,24 @@ export default function App() {
             ) : (
               <button
                 onClick={openAdminLogin}
-                className="px-4 py-2.5 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-sm backdrop-blur-sm"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-xs sm:text-sm backdrop-blur-sm"
               >
                 Admin Login
               </button>
             )}
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <button
                 onClick={goPrev}
-                className="px-4 py-2.5 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors flex items-center gap-2"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors flex items-center gap-1 sm:gap-2 text-xs sm:text-sm"
               >
                 <span>←</span>
-                <span className="hidden sm:inline">Prev</span>
+                <span className="hidden xs:inline">Prev</span>
               </button>
               <button
                 onClick={goNext}
-                className="px-4 py-2.5 rounded-xl bg-white text-slate-900 ring-2 ring-white/50 hover:bg-slate-50 transition-colors font-medium flex items-center gap-2 shadow-lg"
+                className="px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl bg-white text-slate-900 ring-1 sm:ring-2 ring-white/50 hover:bg-slate-50 transition-colors font-medium flex items-center gap-1 sm:gap-2 text-xs sm:text-sm shadow-lg"
               >
-                <span className="hidden sm:inline">Next</span>
+                <span className="hidden xs:inline">Next</span>
                 <span>→</span>
               </button>
             </div>
@@ -1209,59 +1250,63 @@ export default function App() {
       />
 
       {/* Main Content */}
-      <div className="p-4 py-6">
-        <main ref={containerRef} className="max-w-7xl mx-auto">
-          <div
-            className="mx-auto rounded-3xl shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20"
-            style={{ width: bookSize.width, height: bookSize.height }}
+      <main
+        ref={containerRef}
+        className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6"
+      >
+        <div
+          className="mx-auto rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl shadow-lg sm:shadow-xl md:shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20"
+          style={{ width: bookSize.width, height: bookSize.height }}
+        >
+          <HTMLFlipBook
+            width={bookSize.width}
+            height={bookSize.height}
+            size="fixed"
+            className="w-full h-full"
+            ref={bookRef}
+            showCover={true}
+            mobileScrollSupport={true}
+            onFlip={(e) => setPage(e.data)}
           >
-            <HTMLFlipBook
-              width={bookSize.width}
-              height={bookSize.height}
-              size="fixed"
-              className="w-full h-full"
-              ref={bookRef}
-              showCover={true}
-              mobileScrollSupport={true}
-              onFlip={(e) => setPage(e.data)}
-            >
-              {pages.map((p) => (
-                <div key={p.key} className="w-full h-full">
-                  {p.el}
-                </div>
-              ))}
-            </HTMLFlipBook>
-          </div>
-
-          {/* Page dots */}
-          <div className="mt-6 flex items-center justify-center gap-3">
-            {pages.map((p, i) => (
-              <button
-                key={p.key}
-                onClick={() => {
-                  setPage(i);
-                  bookRef.current?.pageFlip().turnToPage(i);
-                }}
-                className={`w-4 h-4 rounded-full transition-all duration-300 ${
-                  i === page
-                    ? "bg-white shadow-lg scale-125"
-                    : "bg-white/50 hover:bg-white/70"
-                }`}
-                aria-label={`Go to ${p.title}`}
-              />
+            {pages.map((p) => (
+              <div key={p.key} className="w-full h-full">
+                {p.el}
+              </div>
             ))}
-          </div>
+          </HTMLFlipBook>
+        </div>
 
-          {/* Mobile instructions */}
-          <p className="mt-4 text-center text-sm text-white/80 max-w-md mx-auto">
-            📱 <strong>Mobile tip:</strong> Swipe or tap page edges to flip. Use
-            buttons above for easier navigation.
-          </p>
-        </main>
-      </div>
+        {/* Page dots */}
+        <div className="mt-3 sm:mt-4 md:mt-6 flex items-center justify-center gap-2 sm:gap-3">
+          {pages.map((p, i) => (
+            <button
+              key={p.key}
+              onClick={() => {
+                setPage(i);
+                bookRef.current?.pageFlip().turnToPage(i);
+              }}
+              className={`w-3 h-3 sm:w-4 sm:h-4 rounded-full transition-all duration-300 ${
+                i === page
+                  ? "bg-white shadow-lg scale-110 sm:scale-125"
+                  : "bg-white/50 hover:bg-white/70"
+              }`}
+              aria-label={`Go to ${p.title}`}
+            />
+          ))}
+        </div>
+
+        {/* Mobile instructions */}
+        <p className="mt-2 sm:mt-3 md:mt-4 text-center text-xs sm:text-sm text-white/80 max-w-md mx-auto px-2">
+          📱 <strong>Mobile tip:</strong> Swipe or tap page edges to flip.
+          <span className="hidden sm:inline">
+            {" "}
+            Use buttons above for easier navigation.
+          </span>
+        </p>
+      </main>
 
       {/* Footer */}
-      <footer className="pb-8 text-center text-white/70 text-sm px-4">
+      <footer className="pb-4 sm:pb-6 md:pb-8 text-center text-white/70 text-xs sm:text-sm px-3 sm:px-4">
         <div className="max-w-2xl mx-auto">
           Made with ❤️ in navy & baby blue.
           <span className="hidden sm:inline">
