@@ -24,11 +24,26 @@ function handleRequest(e) {
   ).toLowerCase();
 
   let result;
+
   try {
     if (action === "list") {
       result = listRSVPs_();
     } else if (action === "add") {
-      const entry = JSON.parse(e.postData.contents).entry;
+      let entry;
+      if (e.postData && e.postData.contents) {
+        // POST request
+        entry = JSON.parse(e.postData.contents).entry;
+      } else {
+        // GET request
+        entry = {
+          name: e.parameter.name || "",
+          email: e.parameter.email || "",
+          attending: e.parameter.attending || "",
+          guests: Number(e.parameter.guests || 0),
+          message: e.parameter.message || "",
+          timestamp: e.parameter.timestamp || new Date().toISOString(),
+        };
+      }
       addRSVP_(entry);
       result = { ok: true };
     } else {
@@ -36,14 +51,6 @@ function handleRequest(e) {
     }
   } catch (err) {
     result = { error: String(err) };
-  }
-
-  // JSONP trick to bypass CORS
-  const callback = e.parameter.callback;
-  if (callback) {
-    return ContentService.createTextOutput(
-      `${callback}(${JSON.stringify(result)})`
-    ).setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
 
   return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(
