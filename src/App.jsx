@@ -79,15 +79,32 @@ async function fetchRSVPsFromSheets() {
   return Array.isArray(data) ? data : data?.rows || [];
 }
 
+// --- React: addRSVPToSheets using GET (no CORS issues) ---
 async function addRSVPToSheets(entry) {
-  if (!isSheetsConfigured()) throw new Error("SHEETS_URL_NOT_CONFIGURED");
-  const res = await fetch(SHEETS_WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "add", entry }),
+  if (!SHEETS_WEB_APP_URL) throw new Error("SHEETS_URL_NOT_CONFIGURED");
+
+  // Build query parameters
+  const params = new URLSearchParams({
+    action: "add",
+    name: entry.name || "",
+    email: entry.email || "",
+    attending: entry.attending || "",
+    guests: entry.guests ? String(entry.guests) : "0",
+    message: entry.message || "",
+    timestamp: new Date().toISOString(),
   });
-  if (!res.ok) throw new Error(`ADD_FAILED_${res.status}`);
-  return res.json();
+
+  const url = `${SHEETS_WEB_APP_URL}?${params.toString()}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`ADD_FAILED_${res.status}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("RSVP add error:", err);
+    throw err;
+  }
 }
 
 // ---------------------------------
@@ -298,7 +315,7 @@ const Button = ({
   ...props
 }) => {
   const baseClasses =
-    "px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform focus:outline-none text-sm sm:text-base";
+    "pmin-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform focus:outline-none text-sm sm:text-base";
 
   const variants = {
     primary: `bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] text-white hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-[#8b5cf680] ${className}`,
@@ -403,18 +420,18 @@ const EventDetails = React.forwardRef((props, ref) => {
   const items = [
     {
       label: "Ceremony",
-      date: "Fri, Nov 7, 2025",
+      date: "Thus, 06 Nov 2025",
       time: "3:00 PM",
-      location: "Yangon Cathedral, Yangon",
-      note: "Doors open 2:30 PM.",
+      location: "Judson Chruch",
+      note: "Time: 3PM - 5PM",
       icon: "💒",
     },
     {
       label: "Reception",
       date: "Fri, Nov 7, 2025",
       time: "6:00 PM",
-      location: "The Strand Ballroom, Yangon",
-      note: "Dinner & dancing to follow.",
+      location: "Sedona Hotel, Yangon",
+      note: "Time: 6PM - 9PM",
       icon: "🎉",
     },
   ];
@@ -463,7 +480,7 @@ const EventDetails = React.forwardRef((props, ref) => {
                       {it.label}
                     </div>
                     <div className="text-base sm:text-lg font-bold text-slate-900">
-                      {it.date} · {it.time}
+                      {it.date}
                     </div>
                   </div>
                   <div className="mt-1 sm:mt-2 text-slate-700 font-medium text-sm sm:text-base">
@@ -657,13 +674,37 @@ const RSVP = React.forwardRef(
               position: "relative",
               zIndex: 1,
             }}
-            onPointerDownCapture={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-            onPointerUpCapture={(e) => e.stopPropagation()}
-            onTouchStartCapture={(e) => e.stopPropagation()}
-            onTouchEndCapture={(e) => e.stopPropagation()}
-            onMouseDownCapture={(e) => e.stopPropagation()}
-            onClickCapture={(e) => e.stopPropagation()}
+            onPointerDownCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onClick={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onPointerUpCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onTouchStartCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+            }}
+            onTouchEndCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
+            onMouseDownCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
+            onClickCapture={(e) => {
+              if (e.target.closest("[data-ignore-stop]")) return;
+              e.stopPropagation();
+              // other form logic...
+            }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
               <FloatingInput
@@ -750,6 +791,7 @@ const RSVP = React.forwardRef(
                 <div className="flex flex-wrap gap-2 sm:gap-3 justify-center w-full sm:w-auto mb-2">
                   <Button
                     type="button"
+                    data-ignore-stop
                     variant="secondary"
                     onClick={onRefresh}
                     disabled={loading}
@@ -759,17 +801,17 @@ const RSVP = React.forwardRef(
                   </Button>
                   <Button
                     type="button"
+                    data-ignore-stop
                     variant="accent"
                     onClick={onExportXLSX}
-                    className="text-xs sm:text-sm"
                   >
                     Export Excel
                   </Button>
                   <Button
                     type="button"
+                    data-ignore-stop
                     variant="baby"
                     onClick={onExportCSV}
-                    className="text-xs sm:text-sm"
                   >
                     Export CSV
                   </Button>
