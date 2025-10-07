@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import HTMLFlipBook from "react-pageflip"; // default import per library
+import HTMLFlipBook from "react-pageflip";
 import * as XLSX from "xlsx";
 
 // ---------------------------------
@@ -10,20 +10,29 @@ const theme = {
   baby: "#cfe8ff",
   baby2: "#e8f3ff",
   ink: "#0f172a",
+  accent: "#8b5cf6", // Added accent color for better visual hierarchy
+  success: "#10b981",
+  error: "#ef4444",
 };
 
 // Base dimensions & responsiveness config
 const BASE_W = 900;
 const BASE_H = 620;
-const ASPECT = BASE_H / BASE_W; // maintain aspect ratio
-const MIN_W = 320; // minimum readable width
-const MAX_W = 1200; // maximum page width
+const ASPECT = BASE_H / BASE_W;
+const MIN_W = 320;
+const MAX_W = 1200;
+
+// Responsive breakpoints
+const BREAKPOINTS = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280,
+};
 
 // ---------------------------------
 // GOOGLE SHEETS ENDPOINT
 // ---------------------------------
-// Set this via Vite env: VITE_SHEETS_WEB_APP_URL
-// or hardcode your Apps Script Web App URL below.
 const SHEETS_WEB_APP_URL = import.meta.env?.VITE_SHEETS_WEB_APP_URL;
 
 function isSheetsConfigured() {
@@ -62,7 +71,6 @@ async function fetchRSVPsFromSheets() {
   const res = await fetch(url, { method: "GET" });
   if (!res.ok) throw new Error(`LIST_FAILED_${res.status}`);
   const data = await res.json();
-  // Expect array of rows with fields matching our schema
   return Array.isArray(data) ? data : data?.rows || [];
 }
 
@@ -118,6 +126,198 @@ function downloadCSV(filename, rows) {
 }
 
 // ---------------------------------
+// ENHANCED INPUT COMPONENTS
+// ---------------------------------
+const FloatingInput = ({
+  label,
+  value,
+  onChange,
+  type = "text",
+  placeholder,
+  required = false,
+  ...props
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <div className="relative mt-6">
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        className="block w-full px-4 pt-6 pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-2xl 
+                  focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
+                  placeholder-transparent peer"
+        placeholder={placeholder}
+        required={required}
+        style={{
+          transform: "translateZ(0)",
+          position: "relative",
+          zIndex: 2,
+        }}
+        {...props}
+      />
+      <label
+        className={`absolute left-4 transition-all duration-200 pointer-events-none
+          ${
+            isFocused || value
+              ? "top-2 text-xs text-[var(--navy)] font-medium"
+              : "top-4 text-slate-500"
+          }
+          peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
+        style={{ "--navy": theme.navy }}
+      >
+        {label} {required && "*"}
+      </label>
+    </div>
+  );
+};
+
+const FloatingSelect = ({
+  label,
+  value,
+  onChange,
+  options,
+  required = false,
+  ...props
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <div className="relative mt-6">
+      <select
+        value={value}
+        onChange={onChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        className="block w-full px-4 pt-6 pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-2xl 
+                  focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
+                  appearance-none cursor-pointer peer"
+        required={required}
+        style={{
+          transform: "translateZ(0)",
+          position: "relative",
+          zIndex: 2,
+        }}
+        {...props}
+      >
+        {options.map((option) => (
+          <option key={option.value || option} value={option.value || option}>
+            {option.label || option}
+          </option>
+        ))}
+      </select>
+      <label
+        className={`absolute left-4 transition-all duration-200 pointer-events-none
+          ${
+            isFocused || value
+              ? "top-2 text-xs text-[var(--navy)] font-medium"
+              : "top-4 text-slate-500"
+          }
+          peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
+        style={{ "--navy": theme.navy }}
+      >
+        {label} {required && "*"}
+      </label>
+      <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+        <svg
+          className="w-4 h-4 text-slate-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+const FloatingTextarea = ({
+  label,
+  value,
+  onChange,
+  rows = 3,
+  placeholder,
+  ...props
+}) => {
+  const [isFocused, setIsFocused] = useState(false);
+
+  return (
+    <div className="relative mt-6">
+      <textarea
+        value={value}
+        onChange={onChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        rows={rows}
+        className="block w-full px-4 pt-6 pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-2xl 
+                  focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
+                  placeholder-transparent resize-none peer"
+        placeholder={placeholder}
+        style={{
+          transform: "translateZ(0)",
+          position: "relative",
+          zIndex: 2,
+        }}
+        {...props}
+      />
+      <label
+        className={`absolute left-4 transition-all duration-200 pointer-events-none
+          ${
+            isFocused || value
+              ? "top-2 text-xs text-[var(--navy)] font-medium"
+              : "top-4 text-slate-500"
+          }
+          peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
+        style={{ "--navy": theme.navy }}
+      >
+        {label}
+      </label>
+    </div>
+  );
+};
+
+// Enhanced Button Component
+const Button = ({ children, variant = "primary", ...props }) => {
+  const baseClasses =
+    "px-6 py-3 rounded-2xl font-medium transition-all duration-200 transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-4";
+
+  const variants = {
+    primary: `bg-[var(--navy)] text-white hover:bg-[var(--navy-dark)] focus:ring-[var(--navy-light)]`,
+    secondary: `bg-white text-slate-900 ring-2 ring-slate-300 hover:bg-slate-50 focus:ring-slate-400`,
+    accent: `bg-[var(--accent)] text-white hover:bg-[var(--accent-dark)] focus:ring-[var(--accent-light)]`,
+    baby: `bg-[var(--baby)] text-[var(--navy)] ring-2 ring-[var(--navy)] hover:bg-[var(--baby-dark)] focus:ring-[var(--baby)]`,
+  };
+
+  return (
+    <button
+      className={`${baseClasses} ${variants[variant]}`}
+      style={{
+        "--navy": theme.navy,
+        "--navy-dark": "#0a1f38",
+        "--navy-light": "#0b254580",
+        "--accent": theme.accent,
+        "--accent-dark": "#7c3aed",
+        "--accent-light": "#8b5cf680",
+        "--baby": theme.baby,
+        "--baby-dark": "#b8d9ff",
+      }}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+// ---------------------------------
 // HOME PAGE (NEWSPAPER-STYLE)
 // ---------------------------------
 const HomePage = React.forwardRef(
@@ -125,49 +325,57 @@ const HomePage = React.forwardRef(
     return (
       <div
         ref={ref}
-        className="w-full h-full bg-white text-[--ink] flex flex-col"
+        className="w-full h-full bg-white text-[--ink] flex flex-col overflow-hidden"
         style={{ "--ink": theme.ink }}
       >
         {/* Top ribbon */}
         <div
-          className="px-6 py-3 border-b border-black/50 grid grid-cols-3 text-xs tracking-[0.3em] uppercase"
+          className="px-4 sm:px-6 py-3 border-b border-black/20 grid grid-cols-3 text-xs tracking-[0.3em] uppercase bg-gradient-to-r from-white to-slate-50"
           style={{ fontFamily: "Inter, system-ui, sans-serif" }}
         >
-          <div className="text-left">{dateText}</div>
-          <div className="text-center">{couple}</div>
-          <div className="text-right">{locationText}</div>
+          <div className="text-left text-slate-600">{dateText}</div>
+          <div
+            className="text-center font-semibold"
+            style={{ color: theme.navy }}
+          >
+            {couple}
+          </div>
+          <div className="text-right text-slate-600">{locationText}</div>
         </div>
 
         {/* Masthead */}
-        <div className="px-4 sm:px-8 py-4 border-b border-black/50">
+        <div className="px-4 sm:px-8 py-6 sm:py-8 border-b border-black/10 bg-gradient-to-br from-white to-slate-50">
           <div
-            className="text-center text-4xl sm:text-5xl md:text-6xl font-serif"
+            className="text-center text-3xl sm:text-5xl md:text-6xl font-serif"
             style={{ fontFamily: '"Playfair Display", serif' }}
           >
             <span
-              className="inline-block px-3 py-1 rounded"
-              style={{ color: theme.navy }}
+              className="inline-block px-4 py-2 rounded-lg bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] text-white shadow-lg"
+              style={{
+                "--navy": theme.navy,
+                "--accent": theme.accent,
+              }}
             >
               The Newlywed Times
             </span>
           </div>
           <div
-            className="mt-3 text-center text-2xl sm:text-3xl tracking-widest"
+            className="mt-4 text-center text-xl sm:text-2xl tracking-widest"
             style={{ fontFamily: "Cinzel, serif" }}
           >
-            <span className="border-y border-black/50 py-2 inline-block">
+            <span className="border-y border-black/20 py-3 inline-block text-slate-700">
               WEDDING OF THE YEAR
             </span>
           </div>
         </div>
 
         {/* Photo (fills remaining height) */}
-        <div className="flex-1 p-4 bg-[rgba(0,0,0,0.02)] overflow-hidden">
-          <div className="w-full h-full rounded shadow overflow-hidden">
+        <div className="flex-1 p-4 sm:p-6 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+          <div className="w-full h-full rounded-2xl shadow-2xl overflow-hidden border-4 border-white">
             <img
               src={coverImage}
               alt="Cover"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
             />
           </div>
         </div>
@@ -187,6 +395,7 @@ const EventDetails = React.forwardRef((props, ref) => {
       time: "3:00 PM",
       location: "Yangon Cathedral, Yangon",
       note: "Doors open 2:30 PM.",
+      icon: "💒",
     },
     {
       label: "Reception",
@@ -194,53 +403,76 @@ const EventDetails = React.forwardRef((props, ref) => {
       time: "6:00 PM",
       location: "The Strand Ballroom, Yangon",
       note: "Dinner & dancing to follow.",
+      icon: "🎉",
     },
   ];
   return (
-    <div ref={ref} className="w-full h-full bg-white flex flex-col">
+    <div
+      ref={ref}
+      className="w-full h-full bg-white flex flex-col overflow-hidden"
+    >
       <div
-        className="h-2 w-full"
+        className="h-3 w-full bg-gradient-to-r from-[var(--baby)] via-[var(--navy)] to-[var(--accent)]"
         style={{
-          background: `linear-gradient(90deg, ${theme.navy}, ${theme.baby})`,
+          "--navy": theme.navy,
+          "--baby": theme.baby,
+          "--accent": theme.accent,
         }}
       />
-      <div className="px-6 py-6 flex-1 overflow-auto">
+      <div className="px-4 sm:px-6 py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50">
         <h2
-          className="text-3xl md:text-4xl font-semibold text-[var(--navy)]"
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2"
           style={{
-            "--navy": theme.navy,
+            color: theme.navy,
             fontFamily: "Playfair Display, serif",
+            background: "linear-gradient(135deg, #0b2545, #8b5cf6)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
           Event Details
         </h2>
-        <p className="mt-2 text-slate-700">
-          We’re so excited to celebrate with you. Here’s the plan for the day.
+        <p className="text-center text-slate-600 mb-8 max-w-md mx-auto">
+          We're so excited to celebrate with you. Here's the plan for the day.
         </p>
-        <div className="mt-4 grid sm:grid-cols-2 gap-4">
+        <div className="grid gap-6 max-w-4xl mx-auto">
           {items.map((it, idx) => (
             <div
               key={idx}
-              className="rounded-2xl p-5 shadow bg-[var(--baby2)]"
-              style={{ "--baby2": theme.baby2 }}
+              className="rounded-2xl p-6 shadow-lg border border-slate-200 bg-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              <div className="text-xs uppercase tracking-widest text-slate-600">
-                {it.label}
+              <div className="flex items-start gap-4">
+                <div className="text-3xl flex-shrink-0">{it.icon}</div>
+                <div className="flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div className="text-xs uppercase tracking-widest font-semibold text-slate-500">
+                      {it.label}
+                    </div>
+                    <div className="text-lg font-bold text-slate-900">
+                      {it.date} · {it.time}
+                    </div>
+                  </div>
+                  <div className="mt-2 text-slate-700 font-medium">
+                    {it.location}
+                  </div>
+                  <div className="mt-3 text-slate-600 text-sm bg-slate-50 rounded-lg p-3">
+                    {it.note}
+                  </div>
+                </div>
               </div>
-              <div className="mt-1 text-xl font-medium text-slate-900">
-                {it.date} · {it.time}
-              </div>
-              <div className="text-slate-700">{it.location}</div>
-              <div className="mt-2 text-slate-600 text-sm">{it.note}</div>
             </div>
           ))}
         </div>
-        <div className="mt-6 rounded-xl p-5 bg-white ring-1 ring-slate-200">
-          <h3 className="font-semibold" style={{ color: theme.navy }}>
-            Dress Code
+        <div className="mt-8 max-w-4xl mx-auto rounded-2xl p-6 bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)] border border-slate-200 shadow-lg">
+          <h3
+            className="font-bold text-lg mb-2 flex items-center gap-2"
+            style={{ color: theme.navy }}
+          >
+            <span>👗</span> Dress Code
           </h3>
           <p className="text-slate-700">
-            Black-tie optional. Navy & baby blue accents welcome ✨
+            <strong>Black-tie optional.</strong> Navy & baby blue accents
+            welcome ✨
           </p>
         </div>
       </div>
@@ -253,42 +485,57 @@ const EventDetails = React.forwardRef((props, ref) => {
 // ---------------------------------
 const LoveStory = React.forwardRef((props, ref) => {
   return (
-    <div ref={ref} className="w-full h-full bg-white flex flex-col">
+    <div
+      ref={ref}
+      className="w-full h-full bg-white flex flex-col overflow-hidden"
+    >
       <div
-        className="h-2 w-full"
+        className="h-3 w-full bg-gradient-to-r from-[var(--accent)] via-[var(--baby)] to-[var(--navy)]"
         style={{
-          background: `linear-gradient(90deg, ${theme.baby}, ${theme.navy})`,
+          "--navy": theme.navy,
+          "--baby": theme.baby,
+          "--accent": theme.accent,
         }}
       />
-      <div className="px-6 py-6 flex-1 overflow-auto">
+      <div className="px-4 sm:px-6 py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50">
         <h2
-          className="text-3xl md:text-4xl font-semibold"
-          style={{ color: theme.navy, fontFamily: "Playfair Display, serif" }}
+          className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-4"
+          style={{
+            color: theme.navy,
+            fontFamily: "Playfair Display, serif",
+            background: "linear-gradient(135deg, #0b2545, #8b5cf6)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
         >
           Our Love Story
         </h2>
-        <div className="mt-4 prose max-w-none">
-          <p>
-            Fourteen years ago, a chance meeting at a cosmetics store sparked a
-            playful hello. Life pulled us to different places and studies
-            abroad, but fate had its own flipbook— our pages turned back to one
-            another.
-          </p>
-          <p>
-            Today, we’re writing the headline we waited for:{" "}
-            <em>Hla Thu Zar & Thaw Zin Htet — together, always.</em>
-          </p>
+        <div className="max-w-4xl mx-auto prose prose-lg">
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
+            <p className="text-slate-700 leading-relaxed text-lg">
+              Fourteen years ago, a chance meeting at a cosmetics store sparked
+              a playful hello. Life pulled us to different places and studies
+              abroad, but fate had its own flipbook— our pages turned back to
+              one another.
+            </p>
+            <p className="text-slate-700 leading-relaxed text-lg mt-4">
+              Today, we're writing the headline we waited for:{" "}
+              <em className="font-semibold" style={{ color: theme.navy }}>
+                "Hla Thu Zar & Thaw Zin Htet — together, always."
+              </em>
+            </p>
+          </div>
         </div>
-        <div className="mt-4 grid sm:grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-4xl mx-auto">
           {[1, 2, 3].map((n, index) => (
             <div
               key={n}
-              className="aspect-[4/3] rounded-xl overflow-hidden shadow ring-1 ring-slate-200"
+              className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lg border-2 border-white hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
               <img
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                 src={`images/story${index + 1}.jpg`}
-                alt="story"
+                alt={`Our story ${index + 1}`}
               />
             </div>
           ))}
@@ -338,42 +585,54 @@ const RSVP = React.forwardRef(
       });
     };
 
-    // ====== IMPORTANT FIXES ADDED ======
-    // 1) Stop propagation in the capture phase on the page wrapper so react-pageflip doesn't hijack touch/mouse events.
-    // 2) Promote the form with translateZ(0) + z-index so inputs inside transformed/3D contexts can receive focus in some browsers.
     return (
       <div
         ref={ref}
-        className="w-full h-full bg-white flex flex-col"
+        className="w-full h-full bg-white flex flex-col overflow-hidden"
         style={{ pointerEvents: "auto" }}
       >
         <div
-          className="h-2 w-full"
+          className="h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)]"
           style={{
-            background: `linear-gradient(90deg, ${theme.navy}, ${theme.baby})`,
+            "--navy": theme.navy,
+            "--baby": theme.baby,
+            "--accent": theme.accent,
           }}
         />
-        <div className="px-10 py-6 flex-1 overflow-hidden">
+        <div className="px-4 sm:px-6 py-6 flex-1 overflow-hidden bg-gradient-to-br from-white to-slate-50">
           <h2
-            className="text-3xl md:text-4xl font-semibold"
-            style={{ color: theme.navy, fontFamily: "Playfair Display, serif" }}
+            className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-2"
+            style={{
+              color: theme.navy,
+              fontFamily: "Playfair Display, serif",
+              background: "linear-gradient(135deg, #0b2545, #8b5cf6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
             RSVP
           </h2>
+
           {canShowSheetsWarning(configured, isAdmin) && (
-            <div className="mt-3 text-sm p-3 rounded-lg bg-yellow-50 text-yellow-900 ring-1 ring-yellow-200">
-              Not connected to Google Sheets yet. Add your{" "}
-              <code>VITE_SHEETS_WEB_APP_URL</code> and redeploy.
+            <div className="mt-3 mx-auto max-w-2xl text-sm p-4 rounded-2xl bg-yellow-50 text-yellow-800 ring-2 ring-yellow-200 flex items-center gap-3">
+              <span className="text-lg">⚠️</span>
+              <div>
+                <strong>Not connected to Google Sheets yet.</strong> Add your{" "}
+                <code className="bg-yellow-100 px-2 py-1 rounded">
+                  VITE_SHEETS_WEB_APP_URL
+                </code>{" "}
+                and redeploy.
+              </div>
             </div>
           )}
-          <p className="mt-2 text-slate-700">
-            Let us know you’re coming. Submissions save to our Google Sheet.
+
+          <p className="text-center text-slate-600 mb-8 max-w-md mx-auto">
+            Let us know you're coming. Submissions save to our Google Sheet.
           </p>
 
-          {/* NOTE: style added to the form to promote it (translateZ) so inputs can be focused inside transformed pages */}
           <form
             onSubmit={handleSubmit}
-            className="mt-4 grid sm:grid-cols-2 gap-4 overflow-auto pr-1"
+            className="max-w-2xl mx-auto grid gap-6 overflow-auto pr-1"
             style={{
               transform: "translateZ(0)",
               position: "relative",
@@ -387,193 +646,172 @@ const RSVP = React.forwardRef(
             onMouseDownCapture={(e) => e.stopPropagation()}
             onClickCapture={(e) => e.stopPropagation()}
           >
-            <div>
-              <label className="block text-sm font-medium">Full Name</label>
-              <input
-                type="text"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <FloatingInput
+                label="Full Name"
                 value={form.name}
                 onChange={(e) => update("name", e.target.value)}
-                className="mt-1 ml-1 w-full rounded-xl border border-slate-300 p-3 focus:outline-none focus:ring-2"
-                placeholder="Your name"
-                style={{
-                  // outlineColor: theme.navy,
-                  transform: "translateZ(0)",
-                  position: "relative",
-                  zIndex: 2,
-                }}
+                placeholder="Your full name"
+                required
               />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Email</label>
-              <input
+              <FloatingInput
+                label="Email"
                 type="email"
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-300 p-3 focus:outline-none focus:ring-2"
                 placeholder="you@example.com"
-                style={{
-                  transform: "translateZ(0)",
-                  position: "relative",
-                  zIndex: 2,
-                }}
+                required
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium">Attending?</label>
-              <select
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <FloatingSelect
+                label="Attending?"
                 value={form.attending}
                 onChange={(e) => update("attending", e.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-300 p-3"
-                style={{
-                  transform: "translateZ(0)",
-                  position: "relative",
-                  zIndex: 2,
-                }}
-              >
-                <option>Yes</option>
-                <option>No</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium">
-                Guests (including you)
-              </label>
-              <input
+                options={["Yes", "No"]}
+                required
+              />
+              <FloatingInput
+                label="Guests (including you)"
                 type="number"
                 min={1}
                 value={form.guests}
                 onChange={(e) => update("guests", Number(e.target.value))}
-                className="mt-1 w-full rounded-xl border border-slate-300 p-3"
-                style={{
-                  transform: "translateZ(0)",
-                  position: "relative",
-                  zIndex: 2,
-                }}
+                placeholder="Number of guests"
+                required
               />
             </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font medium">Message</label>
-              <textarea
-                value={form.message}
-                onChange={(e) => update("message", e.target.value)}
-                rows={3}
-                className="mt-1 w-full rounded-xl border border-slate-300 p-3"
-                placeholder="Dietary notes, song requests, etc."
-                style={{
-                  transform: "translateZ(0)",
-                  position: "relative",
-                  zIndex: 2,
-                }}
-              />
-            </div>
-            <div className="sm:col-span-2 flex flex-wrap gap-3 items-center">
-              <button
-                className="px-5 py-3 rounded-2xl text-white disabled:opacity-60"
-                disabled={saveState === "saving"}
-                style={{ background: theme.navy }}
-              >
-                {saveState === "saving" ? "Saving…" : "Submit RSVP"}
-              </button>
+
+            <FloatingTextarea
+              label="Message"
+              value={form.message}
+              onChange={(e) => update("message", e.target.value)}
+              placeholder="Dietary notes, song requests, etc."
+              rows={3}
+            />
+
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between pt-4">
+              <div className="flex items-center gap-4">
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={saveState === "saving"}
+                  className="min-w-[120px] text-[14px] font-semibold py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200"
+                >
+                  {saveState === "saving" ? "Saving..." : "Submit RSVP"}
+                </Button>
+
+                {saveState === "success" && (
+                  <span className="flex items-center gap-2 text-sm font-medium text-green-600">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    Saved successfully!
+                  </span>
+                )}
+                {saveState === "error" && (
+                  <span className="flex items-center gap-2 text-sm font-medium text-red-600">
+                    <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                    Failed to save
+                  </span>
+                )}
+              </div>
+
               {isAdmin && (
-                <>
-                  <button
+                <div className="flex flex-wrap gap-3 justify-center">
+                  <Button
                     type="button"
-                    onClick={(e) => {
-                      e.stopPropagation = () => {}; // override stopPropagation temporarily
-                      onRefresh();
-                    }}
-                    className="px-4 py-3 rounded-2xl bg-white text-slate-900 ring-1 ring-slate-300 disabled:opacity-60"
+                    variant="secondary"
+                    onClick={onRefresh}
                     disabled={loading}
                   >
-                    {loading ? "Refreshing…" : "Refresh List"}
-                  </button>
-                  <button
-                    type="button"
-                    data-ignore-stop
-                    onClick={(e) => {
-                      console.log("aaaaaaaaaaaaaaaaaaaaaaa");
-                      e.stopPropagation = () => {}; // override stopPropagation temporarily
-                      onExportXLSX();
-                    }}
-                    className="px-5 py-3 rounded-2xl bg-[var(--baby)] text-[var(--navy)] ring-1 ring-[var(--navy)]"
-                    style={{ "--baby": theme.baby, "--navy": theme.navy }}
-                  >
-                    Export to Excel (.xlsx)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation = () => {}; // override stopPropagation temporarily
-                      onExportCSV();
-                    }}
-                    className="px-5 py-3 rounded-2xl bg-white text-slate-900 ring-1 ring-slate-300"
-                  >
+                    {loading ? "Refreshing..." : "Refresh List"}
+                  </Button>
+                  <Button type="button" variant="accent" onClick={onExportXLSX}>
+                    Export Excel
+                  </Button>
+                  <Button type="button" variant="baby" onClick={onExportCSV}>
                     Export CSV
-                  </button>
-                </>
-              )}
-              {saveState === "success" && (
-                <span className="text-sm text-green-700">Saved ✓</span>
-              )}
-              {saveState === "error" && (
-                <span className="text-sm text-rose-700">
-                  Could not save (check Sheets URL)
-                </span>
+                  </Button>
+                </div>
               )}
             </div>
           </form>
 
           {isAdmin ? (
-            <div className="mt-4 h-[40%] overflow-auto">
-              <h3 className="font-semibold" style={{ color: theme.navy }}>
-                Current Responses ({entries.length})
+            <div className="mt-8 max-w-6xl mx-auto">
+              <h3
+                className="font-bold text-lg mb-4 flex items-center gap-2"
+                style={{ color: theme.navy }}
+              >
+                <span>📋</span> Current Responses ({entries.length})
               </h3>
-              <div className="mt-2 overflow-x-auto">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr
-                      className="bg-[var(--baby2)]"
-                      style={{ "--baby2": theme.baby2 }}
-                    >
-                      {[
-                        "name",
-                        "email",
-                        "attending",
-                        "guests",
-                        "message",
-                        "timestamp",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="text-left p-3 whitespace-nowrap uppercase text-xs tracking-wide"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {entries.map((r, i) => (
-                      <tr key={i} className="odd:bg-white even:bg-slate-50">
-                        <td className="p-3 whitespace-nowrap">{r.name}</td>
-                        <td className="p-3 whitespace-nowrap">{r.email}</td>
-                        <td className="p-3 whitespace-nowrap">{r.attending}</td>
-                        <td className="p-3 whitespace-nowrap">{r.guests}</td>
-                        <td className="p-3 min-w-[16rem]">{r.message}</td>
-                        <td className="p-3 whitespace-nowrap">
-                          {r.timestamp
-                            ? new Date(r.timestamp).toLocaleString()
-                            : ""}
-                        </td>
+              <div className="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto max-h-64">
+                  <table className="min-w-full text-sm">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)]">
+                        {[
+                          "name",
+                          "email",
+                          "attending",
+                          "guests",
+                          "message",
+                          "timestamp",
+                        ].map((h) => (
+                          <th
+                            key={h}
+                            className="text-left p-4 whitespace-nowrap uppercase text-xs tracking-wide font-semibold text-slate-700"
+                          >
+                            {h}
+                          </th>
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {entries.map((r, i) => (
+                        <tr
+                          key={i}
+                          className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                        >
+                          <td className="p-4 whitespace-nowrap font-medium text-slate-900">
+                            {r.name}
+                          </td>
+                          <td className="p-4 whitespace-nowrap text-slate-600">
+                            {r.email}
+                          </td>
+                          <td className="p-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                r.attending === "Yes"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {r.attending}
+                            </span>
+                          </td>
+                          <td className="p-4 whitespace-nowrap text-slate-600">
+                            {r.guests}
+                          </td>
+                          <td className="p-4 min-w-[16rem] text-slate-600">
+                            {r.message}
+                          </td>
+                          <td className="p-4 whitespace-nowrap text-slate-500 text-xs">
+                            {r.timestamp
+                              ? new Date(r.timestamp).toLocaleString()
+                              : ""}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           ) : (
-            <p className="mt-6 text-sm text-slate-500">
-              Guest list is private.
+            <p className="text-center text-slate-500 mt-8">
+              Guest list is private. Your response will only be visible to the
+              wedding organizers.
             </p>
           )}
         </div>
@@ -607,37 +845,40 @@ function AdminLoginDialog({ open, onClose, onSuccess }) {
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl">
-        <h3 className="text-lg font-semibold" style={{ color: theme.navy }}>
-          Admin Login
-        </h3>
-        <p className="mt-1 text-sm text-slate-600">
-          Enter the admin code to view responses and export tools.
-        </p>
-        <form onSubmit={submit} className="mt-3 space-y-3">
-          <input
-            autoFocus
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl border border-slate-200">
+        <div className="text-center mb-2">
+          <div className="w-12 h-12 bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <span className="text-white text-lg">🔐</span>
+          </div>
+          <h3 className="text-xl font-bold" style={{ color: theme.navy }}>
+            Admin Login
+          </h3>
+          <p className="mt-2 text-sm text-slate-600">
+            Enter the admin code to view responses and export tools.
+          </p>
+        </div>
+        <form onSubmit={submit} className="mt-4 space-y-4">
+          <FloatingInput
+            label="Admin Code"
             value={code}
             onChange={(e) => setCode(e.target.value)}
-            placeholder="Admin code"
-            className="w-full rounded-xl border border-slate-300 p-3 focus:outline-none focus:ring-2"
+            placeholder="Enter admin code"
+            autoFocus
           />
-          {error && <div className="text-sm text-rose-700">{error}</div>}
-          <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-2 rounded-xl bg-white ring-1 ring-slate-300"
-            >
+          {error && (
+            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-xl">
+              <span>⚠️</span>
+              {error}
+            </div>
+          )}
+          <div className="flex gap-3 justify-end pt-2">
+            <Button type="button" variant="secondary" onClick={onClose}>
               Cancel
-            </button>
-            <button
-              className="px-4 py-2 rounded-xl text-white"
-              style={{ background: theme.navy }}
-            >
+            </Button>
+            <Button type="submit" variant="primary">
               Login
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -650,25 +891,20 @@ function AdminLoginDialog({ open, onClose, onSuccess }) {
 // ---------------------------------
 export default function App() {
   const bookRef = useRef(null);
-  const containerRef = useRef(null); // measure available width
+  const containerRef = useRef(null);
   const [page, setPage] = useState(0);
 
-  // Responsive book size state
   const [bookSize, setBookSize] = useState({ width: BASE_W, height: BASE_H });
-
-  // RSVP state (server-backed)
   const [rsvps, setRsvps] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [saveState, setSaveState] = useState("idle"); // idle | saving | success | error
-
-  // Admin state (persist for the session)
+  const [saveState, setSaveState] = useState("idle");
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
 
   const configured = isSheetsConfigured();
 
   const refreshRSVPs = async () => {
-    if (!isAdmin) return; // don't fetch for public visitors
+    if (!isAdmin) return;
     setLoading(true);
     try {
       const rows = await fetchRSVPsFromSheets();
@@ -689,7 +925,6 @@ export default function App() {
     }
   };
 
-  // Detect admin from URL or session once on load
   useEffect(() => {
     if (typeof window === "undefined") return;
     let granted = false;
@@ -703,35 +938,35 @@ export default function App() {
     setIsAdmin(granted);
   }, []);
 
-  // Fetch RSVPs only in admin mode
   useEffect(() => {
     if (isAdmin) refreshRSVPs();
     else setRsvps([]);
   }, [isAdmin]);
 
   const handleRSVPSubmit = async (entry) => {
-    console.log("🚀 ~ handleRSVPSubmit ~ entry:", entry);
     try {
       setSaveState("saving");
       await addRSVPToSheets(entry);
       setSaveState("success");
       if (isAdmin) await refreshRSVPs();
-      alert("Thanks! Your RSVP has been recorded.");
+      setTimeout(() => {
+        if (saveState === "success") {
+          alert("Thanks! Your RSVP has been recorded.");
+        }
+      }, 100);
     } catch (e) {
       console.error("Add RSVP failed:", e);
       setSaveState("error");
       alert("Sorry, we couldn't save your RSVP. Please check back later.");
     } finally {
-      setTimeout(() => setSaveState("idle"), 1500);
+      setTimeout(() => setSaveState("idle"), 3000);
     }
   };
 
   const exportXLSX = () => {
-    console.log("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz");
     try {
       const sheet = XLSX.utils.json_to_sheet(rsvps);
       const wb = XLSX.utils.book_new();
-      console.log("🚀 ~ exportXLSX ~ wb:", wb);
       XLSX.utils.book_append_sheet(wb, sheet, "RSVPs");
       XLSX.writeFile(wb, "wedding-rsvps.xlsx");
     } catch (e) {
@@ -743,7 +978,6 @@ export default function App() {
     if (rsvps.length) downloadCSV("wedding-rsvps.csv", rsvps);
   };
 
-  // Cover image: allow override via query ?img=url
   const coverImage = useMemo(() => {
     if (typeof window === "undefined")
       return "https://images.unsplash.com/photo-1521543832209-13f301cc1c59?auto=format&fit=crop&w=1350&q=60";
@@ -774,7 +1008,6 @@ export default function App() {
       key: "rsvp",
       title: "RSVP",
       el: (
-        // Note: RSVP component itself now contains capture handlers and transform fixes
         <RSVP
           isAdmin={isAdmin}
           onSubmit={handleRSVPSubmit}
@@ -849,9 +1082,6 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [page]);
 
-  // runtime tests omitted in this excerpt for brevity (keeps your asserts)
-
-  // Admin login helpers
   const openAdminLogin = () => setShowAdminDialog(true);
   const closeAdminLogin = () => setShowAdminDialog(false);
   const confirmAdminLogin = () => {
@@ -866,26 +1096,27 @@ export default function App() {
 
   return (
     <div
-      className="min-h-screen w-full"
+      className="min-h-screen w-full overflow-x-hidden"
       style={{
-        background: `radial-gradient(1200px 700px at 10% 0%, ${theme.baby} 0%, transparent 40%), linear-gradient(180deg, ${theme.navy} 0%, #081a30 100%)`,
+        background: `radial-gradient(1200px 700px at 10% 0%, ${theme.baby}80 0%, transparent 40%), 
+                    linear-gradient(180deg, ${theme.navy} 0%, #081a30 100%)`,
       }}
     >
       {/* Header */}
-      <header className="max-w-6xl mx-auto px-4 pt-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-white text-xl md:text-2xl font-semibold tracking-wide">
+      <header className="max-w-7xl mx-auto px-4 pt-6 pb-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <h1 className="text-white text-xl md:text-2xl font-bold text-center sm:text-left tracking-wide">
             Hla Thu Zar & Thaw Zin Htet — Wedding Invitation
           </h1>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 flex-wrap justify-center">
             {isAdmin ? (
               <>
-                <span className="px-2 py-1 rounded-lg text-xs bg-white/15 text-white ring-1 ring-white/30">
-                  Admin
+                <span className="px-3 py-1.5 rounded-xl text-sm bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm">
+                  👑 Admin Mode
                 </span>
                 <button
                   onClick={logoutAdmin}
-                  className="px-3 py-2 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 text-sm"
+                  className="px-4 py-2.5 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-sm backdrop-blur-sm"
                 >
                   Logout
                 </button>
@@ -893,24 +1124,27 @@ export default function App() {
             ) : (
               <button
                 onClick={openAdminLogin}
-                className="px-3 py-2 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 text-sm"
+                className="px-4 py-2.5 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-sm backdrop-blur-sm"
               >
-                Admin login
+                Admin Login
               </button>
             )}
-            <button
-              onClick={goPrev}
-              className="px-4 py-2 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20"
-            >
-              Prev
-            </button>
-            <button
-              onClick={goNext}
-              className="px-4 py-2 rounded-xl bg-[var(--baby)] text-[var(--navy)] ring-1 ring-[var(--navy)] hover:opacity-90"
-              style={{ "--baby": theme.baby, "--navy": theme.navy }}
-            >
-              Next
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={goPrev}
+                className="px-4 py-2.5 rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors flex items-center gap-2"
+              >
+                <span>←</span>
+                <span className="hidden sm:inline">Prev</span>
+              </button>
+              <button
+                onClick={goNext}
+                className="px-4 py-2.5 rounded-xl bg-white text-slate-900 ring-2 ring-white/50 hover:bg-slate-50 transition-colors font-medium flex items-center gap-2 shadow-lg"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <span>→</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -922,11 +1156,10 @@ export default function App() {
         onSuccess={confirmAdminLogin}
       />
 
-      {/* Responsive container provides measurement */}
-      <main ref={containerRef} className="max-w-6xl mx-auto px-4 py-6">
-        {/* Placeholder EXACTLY matches computed flipbook size */}
+      {/* Main Content */}
+      <main ref={containerRef} className="max-w-7xl mx-auto px-4 py-6">
         <div
-          className="mx-auto rounded-2xl shadow-soft overflow-hidden bg-white/90"
+          className="mx-auto rounded-3xl shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20"
           style={{ width: bookSize.width, height: bookSize.height }}
         >
           <HTMLFlipBook
@@ -948,7 +1181,7 @@ export default function App() {
         </div>
 
         {/* Page dots */}
-        <div className="mt-4 flex items-center justify-center gap-2">
+        <div className="mt-6 flex items-center justify-center gap-3">
           {pages.map((p, i) => (
             <button
               key={p.key}
@@ -956,25 +1189,32 @@ export default function App() {
                 setPage(i);
                 bookRef.current?.pageFlip().turnToPage(i);
               }}
-              className={`w-3 h-3 rounded-full ${
-                i === page ? "bg-[var(--navy)]" : "bg-slate-300"
+              className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                i === page
+                  ? "bg-white shadow-lg scale-125"
+                  : "bg-white/50 hover:bg-white/70"
               }`}
-              style={{ "--navy": theme.navy }}
               aria-label={`Go to ${p.title}`}
             />
           ))}
         </div>
 
-        {/* Loop hint */}
-        <p className="mt-3 text-center text-xs text-slate-300">
-          Pages loop: next from the last page returns to Home; prev from Home
-          goes to RSVP.
+        {/* Mobile instructions */}
+        <p className="mt-4 text-center text-sm text-white/80 max-w-md mx-auto">
+          📱 <strong>Mobile tip:</strong> Swipe or tap page edges to flip. Use
+          buttons above for easier navigation.
         </p>
       </main>
 
       {/* Footer */}
-      <footer className="pb-8 text-center text-white/70 text-sm">
-        Made with ❤️ in navy & baby blue. Tip: Use the arrow keys ↔ to flip.
+      <footer className="pb-8 text-center text-white/70 text-sm px-4">
+        <div className="max-w-2xl mx-auto">
+          Made with ❤️ in navy & baby blue.
+          <span className="hidden sm:inline">
+            {" "}
+            Tip: Use arrow keys ↔ to flip pages.
+          </span>
+        </div>
       </footer>
     </div>
   );
