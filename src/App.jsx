@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
+import { twMerge } from "tailwind-merge";
 import * as XLSX from "xlsx";
 
 // ---------------------------------
@@ -630,7 +631,7 @@ const RSVP = React.forwardRef(
             "--accent": theme.accent,
           }}
         />
-        <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 flex-1 overflow-hidden bg-gradient-to-br from-white to-slate-50">
+        <div className="px-3 sm:px-4 py-4 sm:py-6 flex-1 overflow-hidden bg-gradient-to-br from-white to-slate-50">
           <h2
             className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2"
             style={{
@@ -706,89 +707,102 @@ const RSVP = React.forwardRef(
               // other form logic...
             }}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-              <FloatingInput
-                label="Full Name"
-                value={form.name}
-                onChange={(e) => update("name", e.target.value)}
-                placeholder="Your full name"
-                required
-              />
-              <FloatingInput
-                label="Email"
-                type="email"
-                value={form.email}
-                onChange={(e) => update("email", e.target.value)}
-                placeholder="you@example.com"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
-              <FloatingSelect
-                label="Attending?"
-                value={form.attending}
-                onChange={(e) => update("attending", e.target.value)}
-                options={["Yes", "No"]}
-                required
-              />
-              <FloatingInput
-                label="Guests (including you)"
-                type="text"
-                value={form.guests}
-                onChange={(e) => {
-                  const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
-                  update("guests", Number(onlyNumbers));
-                }}
-                placeholder="Number of guests"
-                required
-              />
-            </div>
-
-            <FloatingTextarea
-              label="Message"
-              value={form.message}
-              onChange={(e) => update("message", e.target.value)}
-              placeholder="Dietary notes, song requests, etc."
-              rows={3}
-            />
-
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between pt-3 sm:pt-4 mb-2">
-              <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={saveState === "saving"}
-                  className="min-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-2 sm:focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200 w-full xs:w-auto"
-                >
-                  {saveState === "saving" ? (
-                    <span className="flex items-center justify-center gap-2">
-                      <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Saving...
-                    </span>
-                  ) : (
-                    "Submit RSVP"
-                  )}
-                </Button>
-
-                <div className="flex items-center gap-2">
-                  {saveState === "success" && (
-                    <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-green-600">
-                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></span>
-                      Saved!
-                    </span>
-                  )}
-                  {saveState === "error" && (
-                    <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-red-600">
-                      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full"></span>
-                      Failed
-                    </span>
-                  )}
-                </div>
+            {!isAdmin && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                <FloatingInput
+                  label="Full Name"
+                  value={form.name}
+                  onChange={(e) => update("name", e.target.value)}
+                  placeholder="Your full name"
+                  required
+                />
+                <FloatingInput
+                  label="Email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                />
               </div>
+            )}
+
+            {!isAdmin && (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                  <FloatingSelect
+                    label="Attending?"
+                    value={form.attending}
+                    onChange={(e) => update("attending", e.target.value)}
+                    options={["Yes", "No"]}
+                    required
+                  />
+                  <FloatingInput
+                    label="Guests (including you)"
+                    type="text"
+                    value={form.guests}
+                    onChange={(e) => {
+                      const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
+                      update("guests", Number(onlyNumbers));
+                    }}
+                    placeholder="Number of guests"
+                    required
+                  />
+                </div>
+
+                <FloatingTextarea
+                  label="Message"
+                  value={form.message}
+                  onChange={(e) => update("message", e.target.value)}
+                  placeholder="Dietary notes, song requests, etc."
+                  rows={3}
+                />
+              </>
+            )}
+
+            <div
+              className={twMerge(
+                "flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between pt-3 sm:pt-4 mb-2",
+                isAdmin ? "justify-center w-full" : ""
+              )}
+            >
+              {!isAdmin && (
+                <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={saveState === "saving"}
+                    className="min-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-2 sm:focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200 w-full xs:w-auto"
+                  >
+                    {saveState === "saving" ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        Saving...
+                      </span>
+                    ) : (
+                      "Submit RSVP"
+                    )}
+                  </Button>
+
+                  <div className="flex items-center gap-2">
+                    {saveState === "success" && (
+                      <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-green-600">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></span>
+                        Saved!
+                      </span>
+                    )}
+                    {saveState === "error" && (
+                      <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-red-600">
+                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full"></span>
+                        Failed
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {isAdmin && (
-                <div className="flex flex-wrap gap-2 sm:gap-3 justify-center w-full sm:w-auto mb-2">
+                <div className="flex justify-end items-center flex-wrap gap-2 sm:gap-3 w-full sm:w-auto mb-2">
                   <Button
                     type="button"
                     data-ignore-stop
@@ -829,7 +843,7 @@ const RSVP = React.forwardRef(
                 <span>📋</span> Current Responses ({entries.length})
               </h3>
               <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg border border-slate-200 overflow-hidden">
-                <div className="overflow-x-auto max-h-32 sm:max-h-48 md:max-h-64">
+                <div className="overflow-x-auto max-h-32 sm:max-h-48 bg-balck md:max-h-[290px]">
                   <table className="min-w-full text-xs sm:text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)]">
