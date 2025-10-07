@@ -74,15 +74,32 @@ async function fetchRSVPsFromSheets() {
   return Array.isArray(data) ? data : data?.rows || [];
 }
 
+// --- React: addRSVPToSheets using GET (no CORS issues) ---
 async function addRSVPToSheets(entry) {
-  if (!isSheetsConfigured()) throw new Error("SHEETS_URL_NOT_CONFIGURED");
-  const res = await fetch(SHEETS_WEB_APP_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "add", entry }),
+  if (!SHEETS_WEB_APP_URL) throw new Error("SHEETS_URL_NOT_CONFIGURED");
+
+  // Build query parameters
+  const params = new URLSearchParams({
+    action: "add",
+    name: entry.name || "",
+    email: entry.email || "",
+    attending: entry.attending || "",
+    guests: entry.guests ? String(entry.guests) : "0",
+    message: entry.message || "",
+    timestamp: new Date().toISOString(),
   });
-  if (!res.ok) throw new Error(`ADD_FAILED_${res.status}`);
-  return res.json();
+
+  const url = `${SHEETS_WEB_APP_URL}?${params.toString()}`;
+
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`ADD_FAILED_${res.status}`);
+    const data = await res.json();
+    return data;
+  } catch (err) {
+    console.error("RSVP add error:", err);
+    throw err;
+  }
 }
 
 // ---------------------------------

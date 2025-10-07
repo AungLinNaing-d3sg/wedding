@@ -2,34 +2,58 @@
 const SHEET_NAME = "RSVPs";
 
 function doGet(e) {
-  try {
-    const action = (e.parameter.action || "").toLowerCase();
-    if (action === "list") {
-      const rows = listRSVPs_();
-      return respond_(200, rows);
-    }
-    return respond_(400, { error: "Unknown action" });
-  } catch (err) {
-    return respond_(500, { error: String(err) });
-  }
+  return handleRequest(e);
 }
 
 function doPost(e) {
-  try {
-    const body =
-      e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {};
-    const action = (body.action || "").toLowerCase();
-    if (action === "add") {
-      const entry = body.entry || {};
-      addRSVP_(entry);
-      return respond_(200, { ok: true });
-    }
-    return respond_(400, { error: "Unknown action" });
-  } catch (err) {
-    return respond_(500, { error: String(err) });
-  }
+  return handleRequest(e);
 }
 
+function doOptions(e) {
+  return HtmlService.createHtmlOutput("ok").setXFrameOptionsMode(
+    HtmlService.XFrameOptionsMode.ALLOWALL
+  ); // just responds to preflight
+}
+
+// unified handler
+function handleRequest(e) {
+  const action = (
+    e.parameter?.action ||
+    (e.postData && JSON.parse(e.postData.contents).action) ||
+    ""
+  ).toLowerCase();
+
+  let result;
+  try {
+    if (action === "list") {
+      result = listRSVPs_();
+    } else if (action === "add") {
+      const entry = JSON.parse(e.postData.contents).entry;
+      addRSVP_(entry);
+      result = { ok: true };
+    } else {
+      result = { error: "Unknown action" };
+    }
+  } catch (err) {
+    result = { error: String(err) };
+  }
+
+  // JSONP trick to bypass CORS
+  const callback = e.parameter.callback;
+  if (callback) {
+    return ContentService.createTextOutput(
+      `${callback}(${JSON.stringify(result)})`
+    ).setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(
+    ContentService.MimeType.JSON
+  );
+}
+
+/**
+ * List all RSVPs
+ */
 function listRSVPs_() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
@@ -46,6 +70,9 @@ function listRSVPs_() {
   return out;
 }
 
+/**
+ * Add a new RSVP entry
+ */
 function addRSVP_(entry) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
@@ -71,8 +98,17 @@ function addRSVP_(entry) {
   sh.appendRow(row);
 }
 
+/**
+ * JSON response with CORS headers
+ */
 function respond_(status, obj) {
   const output = ContentService.createTextOutput(JSON.stringify(obj));
   output.setMimeType(ContentService.MimeType.JSON);
+
+  // Add CORS headers
+  output.setHeader("Access-Control-Allow-Origin", "*");
+  output.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  output.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   return output;
 }
