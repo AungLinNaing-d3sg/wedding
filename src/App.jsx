@@ -351,7 +351,7 @@ const HomePage = React.forwardRef(
     return (
       <div
         ref={ref}
-        className="w-full h-full bg-white text-[--ink] flex flex-col overflow-hidden"
+        className="w-full h-screen bg-white text-[--ink] flex flex-col  overflow-hidden"
         style={{ "--ink": theme.ink }}
       >
         {/* Top ribbon */}
@@ -374,39 +374,42 @@ const HomePage = React.forwardRef(
         </div>
 
         {/* Masthead */}
-        <div className="px-3 sm:px-6 md:px-8 py-4 sm:py-6 md:py-8 border-b border-black/10 bg-gradient-to-br from-white to-slate-50">
+        <div className="w-full min-h-screen overflow-auto">
           <div
-            className="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif"
-            style={{ fontFamily: '"Playfair Display", serif' }}
+            className="relative w-full"
+            style={{
+              backgroundImage: `url(${coverImage})`,
+              backgroundSize: "contain", // ensures full image is visible
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center top", // position top so content flows below
+              minHeight: "83vh", // at least viewport height
+            }}
           >
-            <span
-              className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] text-white shadow-lg text-sm sm:text-base"
-              style={{
-                "--navy": theme.navy,
-                "--accent": theme.accent,
-              }}
-            >
-              The Newlywed Times
-            </span>
-          </div>
-          <div
-            className="mt-2 sm:mt-4 text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
-            style={{ fontFamily: "Cinzel, serif" }}
-          >
-            <span className="border-y border-black/20 py-2 sm:py-3 inline-block text-slate-700 text-sm sm:text-base">
-              WEDDING OF THE YEAR
-            </span>
-          </div>
-        </div>
-
-        {/* Photo (fills remaining height) */}
-        <div className="flex-1 p-2 sm:p-4 md:p-6 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
-          <div className="w-full h-full rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg sm:shadow-xl md:shadow-2xl overflow-hidden border-2 sm:border-4 border-white">
-            <img
-              src={coverImage}
-              alt="Cover"
-              className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-            />
+            {/* Content overlay */}
+            <div className="relative z-10 flex flex-col items-center justify-start px-3 sm:px-6 md:px-8 py-8">
+              <div
+                className="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif"
+                style={{ fontFamily: '"Playfair Display", serif' }}
+              >
+                <span
+                  className="inline-block px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] text-white shadow-lg text-sm sm:text-base"
+                  style={{
+                    "--navy": theme.navy,
+                    "--accent": theme.accent,
+                  }}
+                >
+                  The Newlywed Times
+                </span>
+              </div>
+              <div
+                className="mt-4 sm:mt-6 text-center text-lg sm:text-xl md:text-2xl tracking-wider sm:tracking-widest"
+                style={{ fontFamily: "Cinzel, serif" }}
+              >
+                <span className="border-y border-white/50 py-2 sm:py-3 inline-block text-white text-sm sm:text-base">
+                  WEDDING OF THE YEAR
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -515,6 +518,13 @@ const EventDetails = React.forwardRef((props, ref) => {
 // ---------------------------------
 // LOVE STORY
 // ---------------------------------
+const mediaFiles = [
+  "images/story1.jpg",
+  "images/story2.jpg",
+  "images/story3.jpg",
+  "images/story_vdo.mp4",
+];
+
 const LoveStory = React.forwardRef((props, ref) => {
   return (
     <div
@@ -558,25 +568,39 @@ const LoveStory = React.forwardRef((props, ref) => {
             </p>
           </div>
         </div>
+        <div className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 max-w-4xl mx-auto px-2">
+          <div className="rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+            <video
+              className="w-full h-full object-cover"
+              src="images/story_vdo.mp4"
+              controls
+              autoPlay
+              loop
+              muted
+            />
+          </div>
+        </div>
+
         <div className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4 max-w-4xl mx-auto px-2">
-          {[1, 2, 3].map((n, index) => (
-            <div
-              key={n}
-              className="aspect-[4/3] rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <img
-                className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                src={`images/story${index + 1}.jpg`}
-                alt={`Our story ${index + 1}`}
-              />
-            </div>
-          ))}
+          {[0, 1, 2].map((index) => {
+            return (
+              <div
+                key={index}
+                className="aspect-[2/3] rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <img
+                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                  src={`images/story${index + 1}.jpg`}
+                  alt={`Our story ${index + 1}`}
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 });
-
 // ---------------------------------
 // RSVP PAGE
 // ---------------------------------
@@ -1104,7 +1128,7 @@ export default function App() {
       title: "Home",
       el: (
         <HomePage
-          coverImage="/images/home.webp"
+          coverImage="/images/home.jpg"
           couple="Hla Thu Zar & Thaw Zin Htet"
           dateText="November 7th, 2025"
           locationText="Yangon, Myanmar"
