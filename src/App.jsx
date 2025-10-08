@@ -1,3 +1,9 @@
+import {
+  CalendarLove01Icon,
+  ChurchIcon,
+  Location08Icon,
+  VintageClockIcon,
+} from "hugeicons-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 import { twMerge } from "tailwind-merge";
@@ -423,20 +429,24 @@ const HomePage = React.forwardRef(
 const EventDetails = React.forwardRef((props, ref) => {
   const items = [
     {
+      labelIcon: <ChurchIcon size={22} color="#64748b" />,
       label: "Ceremony",
-      date: "Thus, 06 Nov 2025",
-      time: "3:00 PM",
+      dateIcon: <CalendarLove01Icon size={18} color="#475569" />,
+      date: "Date: Thus, 06 Nov 2025",
+      locationIcon: <Location08Icon size={20} color="#334155" />,
       location: "Judson Chruch",
-      note: "Time: 3PM - 5PM",
-      icon: "💒",
+      timeIcon: <VintageClockIcon size={20} color="#475569" />,
+      time: "Time: 3PM - 5PM",
     },
     {
-      label: "Reception",
-      date: "Fri, Nov 7, 2025",
-      time: "6:00 PM",
+      labelIcon: <ChurchIcon size={22} color="#64748b" />,
+      label: "Dinner Party",
+      dateIcon: <CalendarLove01Icon size={18} color="#475569" />,
+      date: "Date: Fri, Nov 7, 2025",
+      locationIcon: <Location08Icon size={20} color="#334155" />,
       location: "Sedona Hotel, Yangon",
-      note: "Time: 6PM - 9PM",
-      icon: "🎉",
+      timeIcon: <VintageClockIcon size={20} color="#475569" />,
+      time: "Time: 6PM - 9PM",
     },
   ];
   return (
@@ -475,23 +485,26 @@ const EventDetails = React.forwardRef((props, ref) => {
               className="rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 shadow-md sm:shadow-lg border border-slate-200 bg-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
               <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
-                <div className="text-2xl sm:text-3xl flex-shrink-0">
-                  {it.icon}
-                </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                    <div className="text-xs uppercase tracking-widest font-semibold text-slate-500">
-                      {it.label}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-1 sm:gap-2">
+                    <div className="text-xs uppercase tracking-widest flex justify-start items-end gap-1 font-semibold text-slate-500">
+                      <div className="relative">{it.labelIcon}</div>
+                      <div className="leading-none">{it.label}</div>
                     </div>
-                    <div className="text-base sm:text-lg font-bold text-slate-900">
+                  </div>
+                  <div className="mt-1 flex justify-start items-end gap-1 sm:mt-2 text-slate-700 font-medium text-xs sm:text-base">
+                    <div className="relative">{it.locationIcon}</div>
+                    <span className="leading-none">{it.location}</span>
+                  </div>
+                  <div className="mt-2 sm:mt-3 text-slate-600 text-xs sm:text-xs bg-slate-50 flex justify-between items-center  rounded-lg p-2 sm:p-3">
+                    <div className="flex justify-center items-center gap-1">
+                      {it.dateIcon}
                       {it.date}
                     </div>
-                  </div>
-                  <div className="mt-1 sm:mt-2 text-slate-700 font-medium text-sm sm:text-base">
-                    {it.location}
-                  </div>
-                  <div className="mt-2 sm:mt-3 text-slate-600 text-xs sm:text-sm bg-slate-50 rounded-lg p-2 sm:p-3">
-                    {it.note}
+                    <div className="flex justify-center items-center gap-1">
+                      {it.timeIcon}
+                      {it.time}
+                    </div>
                   </div>
                 </div>
               </div>
