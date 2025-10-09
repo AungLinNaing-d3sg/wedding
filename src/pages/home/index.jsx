@@ -380,19 +380,18 @@ const HomePage = React.forwardRef(
         </div>
 
         {/* Masthead */}
-        <div className="w-full min-h-screen overflow-auto">
+        <div className="w-full h-screen overflow-hidden">
           <div
-            className="relative w-full"
+            className="relative w-full h-screen"
             style={{
               backgroundImage: `url(${coverImage})`,
-              backgroundSize: "contain", // ensures full image is visible
+              backgroundSize: "cover",
               backgroundRepeat: "no-repeat",
-              backgroundPosition: "center top", // position top so content flows below
-              minHeight: "83vh", // at least viewport height
+              backgroundPosition: "center center",
             }}
           >
             {/* Content overlay */}
-            <div className="relative z-10 flex flex-col items-center justify-start px-3 sm:px-6 md:px-8 py-8">
+            <div className="relative z-10 flex flex-col items-center justify-start px-3 sm:px-6 md:px-8 py-8 h-full">
               <div
                 className="text-center text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif"
                 style={{ fontFamily: '"Playfair Display", serif' }}
