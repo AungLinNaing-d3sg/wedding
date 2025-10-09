@@ -487,12 +487,12 @@ const EventDetails = React.forwardRef((props, ref) => {
               <div className="flex items-start gap-2 sm:gap-3 md:gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-start gap-1 sm:gap-2">
-                    <div className="text-xs uppercase tracking-widest flex justify-start items-end gap-1 font-semibold text-slate-500">
+                    <div className="text-s uppercase tracking-widest flex gap-2 justify-start items-end font-semibold text-slate-500">
                       <div className="relative">{it.labelIcon}</div>
                       <div className="leading-none">{it.label}</div>
                     </div>
                   </div>
-                  <div className="mt-1 flex justify-start items-end gap-1 sm:mt-2 text-slate-700 font-medium text-xs sm:text-base">
+                  <div className="mt-1 flex justify-start items-end gap-2 sm:mt-2 text-slate-700 font-medium text-xs sm:text-base">
                     <div className="relative">{it.locationIcon}</div>
                     <span className="leading-none">{it.location}</span>
                   </div>
@@ -1255,9 +1255,9 @@ export default function App() {
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-center">
             {isAdmin ? (
               <>
-                <span className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-xs bg-white/20 text-white ring-1 ring-white/30 backdrop-blur-sm">
+                <button className="px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-xs sm:text-sm backdrop-blur-sm">
                   👑 Admin
-                </span>
+                </button>
                 <button
                   onClick={logoutAdmin}
                   className="px-3 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl bg-white/10 text-white ring-1 ring-white/30 hover:bg-white/20 transition-colors text-xs sm:text-sm backdrop-blur-sm"
