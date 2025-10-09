@@ -219,10 +219,10 @@ const FloatingSelect = ({
         value={value}
         onChange={onChange}
         required={required}
-        className={`block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
+        className={`block w-full px-3 sm:px-4 lg:py-3 py-2 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
                    focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
                    appearance-none cursor-pointer text-sm sm:text-base
-                   ${!value ? "text-slate-300" : "text-slate-900"}`} // ✅ conditional color
+                   ${!value ? "text-slate-300" : "text-slate-900"}`}
         style={{
           transform: "translateZ(0)",
           position: "relative",
