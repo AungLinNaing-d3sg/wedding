@@ -176,9 +176,9 @@ const FloatingInput = ({
         onChange={onChange}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        className="block w-full px-3 sm:px-4 py-2 pb-1.5 sm:pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
+        className="block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  placeholder-[#3333] peer text-sm sm:text-base"
+                  placeholder-slate-300 peer text-sm sm:text-base"
         placeholder={placeholder}
         required={required}
         style={{
@@ -210,21 +210,19 @@ const FloatingSelect = ({
   onChange,
   options,
   required = false,
+  placeholder = "-- Select --",
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
   return (
     <div className="relative mt-4 sm:mt-6">
       <select
         value={value}
         onChange={onChange}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        className="block w-full px-3 sm:px-4 pt-5 sm:pt-6 pb-1.5 sm:pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
-                  focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  appearance-none cursor-pointer peer text-sm sm:text-base"
         required={required}
+        className={`block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
+                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
+                   appearance-none cursor-pointer text-sm sm:text-base
+                   ${!value ? "text-slate-300" : "text-slate-900"}`} // ✅ conditional color
         style={{
           transform: "translateZ(0)",
           position: "relative",
@@ -232,27 +230,29 @@ const FloatingSelect = ({
         }}
         {...props}
       >
+        {(!value || value === "") && (
+          <option value="" hidden disabled>
+            {placeholder}
+          </option>
+        )}
+
         {options.map((option) => (
-          <option key={option.value || option} value={option.value || option}>
+          <option
+            className="text-slate-900"
+            key={option.value || option}
+            value={option.value || option}
+          >
             {option.label || option}
           </option>
         ))}
       </select>
-      <label
-        className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
-          ${
-            isFocused || value
-              ? "top-1.5 sm:top-2 text-xs text-[var(--navy)] font-medium"
-              : "top-3 sm:top-4 text-slate-500"
-          }
-          peer-focus:top-1.5 sm:peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
-        style={{ "--navy": theme.navy }}
-      >
-        {label} {required && "*"}
-      </label>
+
+      {/* ▼ dropdown icon */}
       <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
         <svg
-          className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500"
+          className={`w-3 h-3 sm:w-4 sm:h-4 ${
+            !value ? "text-slate-400" : "text-slate-500"
+          }`} // optional match arrow
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -287,9 +287,9 @@ const FloatingTextarea = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         rows={rows}
-        className="block w-full px-3 sm:px-4 pt-5 sm:pt-6 pb-1.5 sm:pb-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
+        className="block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  placeholder-transparent resize-none peer text-sm sm:text-base"
+                  placeholder-slate-300 resize-none peer text-sm sm:text-base"
         placeholder={placeholder}
         style={{
           transform: "translateZ(0)",
@@ -298,7 +298,7 @@ const FloatingTextarea = ({
         }}
         {...props}
       />
-      <label
+      {/* <label
         className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
           ${
             isFocused || value
@@ -309,7 +309,7 @@ const FloatingTextarea = ({
         style={{ "--navy": theme.navy }}
       >
         {label}
-      </label>
+      </label> */}
     </div>
   );
 };
@@ -635,7 +635,7 @@ const RSVP = React.forwardRef(
     const [form, setForm] = useState({
       name: "",
       email: "",
-      attending: "Yes",
+      attending: "",
       guests: "",
       message: "",
     });
@@ -648,7 +648,7 @@ const RSVP = React.forwardRef(
       setForm({
         name: "",
         email: "",
-        attending: "Yes",
+        attending: "",
         guests: 1,
         message: "",
       });
@@ -661,7 +661,7 @@ const RSVP = React.forwardRef(
         style={{ pointerEvents: "auto" }}
       >
         <div
-          className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)] overflow-x-scroll"
+          className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)]"
           style={{
             "--navy": theme.navy,
             "--baby": theme.baby,
@@ -706,7 +706,7 @@ const RSVP = React.forwardRef(
 
           <form
             onSubmit={handleSubmit}
-            className="max-w-2xl mx-auto grid gap-3 sm:gap-4 md:gap-6 overflow-auto pr-1"
+            className="max-w-2xl mx-auto grid lg:gap-1 sm:gap-4 md:gap-6 overflow-auto pr-1"
             style={{
               transform: "translateZ(0)",
               position: "relative",
@@ -768,7 +768,7 @@ const RSVP = React.forwardRef(
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                   <FloatingSelect
-                    label="Attending?"
+                    placeholder="Attending?"
                     value={form.attending}
                     onChange={(e) => update("attending", e.target.value)}
                     options={["Yes", "No"]}
@@ -799,12 +799,12 @@ const RSVP = React.forwardRef(
 
             <div
               className={twMerge(
-                "flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-between pt-3 sm:pt-4 mb-2",
+                "flex flex-col w-full sm:flex-row gap-3 sm:gap-4 items-center pt-3 sm:pt-4 mb-2",
                 isAdmin ? "justify-center w-full" : ""
               )}
             >
               {!isAdmin && (
-                <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
+                <div className="flex flex-col lg:flex-row xs:flex-row items-center xs:items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
                   <Button
                     type="submit"
                     variant="primary"
@@ -823,9 +823,9 @@ const RSVP = React.forwardRef(
 
                   <div className="flex items-center gap-2">
                     {saveState === "success" && (
-                      <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-green-600">
+                      <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-green-600 whitespace-nowrap">
                         <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></span>
-                        Saved!
+                        Your data has been saved.
                       </span>
                     )}
                     {saveState === "error" && (
@@ -1317,6 +1317,7 @@ export default function App() {
             ref={bookRef}
             showCover={true}
             mobileScrollSupport={true}
+            useMouseEvents={false}
             onFlip={(e) => setPage(e.data)}
           >
             {pages.map((p) => (
