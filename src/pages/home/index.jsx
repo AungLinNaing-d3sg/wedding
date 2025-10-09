@@ -586,9 +586,9 @@ const LoveStory = React.forwardRef((props, ref) => {
               className="w-full h-full object-cover"
               src="images/story_vdo.mp4"
               controls
-              autoPlay
               loop
               muted
+              poster="images/thumbnail.PNG"
             />
           </div>
         </div>
