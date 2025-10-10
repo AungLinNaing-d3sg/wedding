@@ -315,7 +315,7 @@ const Button = ({
   ...props
 }) => {
   const baseClasses =
-    "pmin-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform focus:outline-none text-sm sm:text-base";
+    "min-w-[120px] sm:min-w-[120px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-medium transition-all duration-200 transform focus:outline-none text-sm sm:text-base";
 
   const variants = {
     primary: `bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] text-white hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-[#8b5cf680] ${className}`,
@@ -488,7 +488,7 @@ const EventDetails = React.forwardRef((props, ref) => {
                     <div className="relative">{it.locationIcon}</div>
                     <span className="leading-none">{it.location}</span>
                   </div>
-                  <div className="mt-2 sm:mt-3 text-slate-600 text-xs sm:text-xs bg-slate-50 flex justify-between items-center  rounded-lg p-2 sm:p-3">
+                  <div className="mt-2 sm:mt-3 text-slate-600 text-xs sm:text-xs bg-slate-50 p-0 flex lg:flex-row gap-2 lg:gap-0 justify-start items-start flex-col lg:justify-between lg:items-center  rounded-lg lg:p-2 sm:p-3">
                     <div className="flex justify-center items-center gap-1">
                       {it.dateIcon}
                       {it.date}
@@ -862,7 +862,7 @@ const RSVP = React.forwardRef(
               )}
 
               {isAdmin && (
-                <div className="flex justify-end items-center flex-wrap gap-2 sm:gap-3 w-full sm:w-auto mb-2">
+                <div className="flex px-2 items-start justify-start lg:justify-end lg:items-center flex-wrap gap-2 sm:gap-3 w-full sm:w-auto mb-2">
                   <Button
                     type="button"
                     data-ignore-stop
@@ -903,7 +903,7 @@ const RSVP = React.forwardRef(
                 <span>📋</span> Current Responses ({entries.length})
               </h3>
               <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg border border-slate-200 overflow-hidden">
-                <div className="overflow-x-auto max-h-32 sm:max-h-48 bg-balck md:max-h-[290px]">
+                <div className="overflow-x-auto max-h-32 sm:max-h-56 bg-balck md:max-h-[290px]">
                   <table className="min-w-full text-xs sm:text-sm">
                     <thead>
                       <tr className="bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)]">
