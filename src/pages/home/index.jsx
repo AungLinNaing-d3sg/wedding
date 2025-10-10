@@ -4,7 +4,7 @@ import {
   Location08Icon,
   VintageClockIcon,
 } from "hugeicons-react";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 import { twMerge } from "tailwind-merge";
 import * as XLSX from "xlsx";
@@ -162,44 +162,35 @@ const FloatingInput = ({
   value,
   onChange,
   type = "text",
-  placeholder,
+  placeholder = "",
   required = false,
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
   return (
-    <div className="relative mt-4 sm:mt-6">
+    <div className="relative w-full">
       <input
         type={type}
         value={value}
         onChange={onChange}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        className="block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
-                  focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  placeholder-slate-300 peer text-sm sm:text-base"
-        placeholder={placeholder}
+        id={label}
         required={required}
-        style={{
-          transform: "translateZ(0)",
-          position: "relative",
-          zIndex: 2,
-        }}
+        placeholder={placeholder}
+        className="peer block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
+                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
+                   placeholder-transparent text-sm sm:text-base"
         {...props}
       />
-      {/* <label
-        className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
-          ${
-            isFocused || value
-              ? "top-1.5 sm:top-2 text-xs text-[var(--navy)] font-medium"
-              : "top-3 sm:top-4 text-slate-500"
-          }
-          peer-focus:top-1.5 sm:peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
-        style={{ "--navy": theme.navy }}
+
+      <label
+        htmlFor={label}
+        className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm sm:text-base
+                   transition-all duration-200 ease-in-out bg-white px-1 rounded
+                   peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2
+                   peer-focus:-top-3 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-[var(--navy)]"
       >
-        {label} {required && "*"}
-      </label> */}
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
     </div>
   );
 };
@@ -214,28 +205,21 @@ const FloatingSelect = ({
   ...props
 }) => {
   return (
-    <div className="relative mt-4 sm:mt-6">
+    <div className="relative w-full">
       <select
         value={value}
         onChange={onChange}
         required={required}
-        className={`block w-full px-3 sm:px-4 lg:py-3 py-2 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
+        id={label}
+        className={`peer block w-full px-3 sm:px-4 lg:py-3 py-2 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl
                    focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
                    appearance-none cursor-pointer text-sm sm:text-base
-                   ${!value ? "text-slate-300" : "text-slate-900"}`}
-        style={{
-          transform: "translateZ(0)",
-          position: "relative",
-          zIndex: 2,
-        }}
+                   ${!value ? "text-transparent" : "text-slate-900"}`}
         {...props}
       >
-        {(!value || value === "") && (
-          <option value="" hidden disabled>
-            {placeholder}
-          </option>
-        )}
-
+        <option value="" disabled hidden>
+          {placeholder}
+        </option>
         {options.map((option) => (
           <option
             className="text-slate-900"
@@ -247,12 +231,28 @@ const FloatingSelect = ({
         ))}
       </select>
 
-      {/* ▼ dropdown icon */}
-      <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 pointer-events-none">
+      {/* Floating label */}
+      <label
+        htmlFor={label}
+        className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm sm:text-base
+                    transition-all duration-200 ease-in-out bg-white px-1 rounded
+                    ${
+                      value
+                        ? "-top-3 translate-y-0 text-[13px] text-[var(--navy)]"
+                        : ""
+                    }
+                    peer-focus:-top-3 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-[var(--navy)]`}
+      >
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+
+      {/* ▼ Dropdown icon */}
+      <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 pointer-events-none">
         <svg
           className={`w-3 h-3 sm:w-4 sm:h-4 ${
             !value ? "text-slate-400" : "text-slate-500"
-          }`} // optional match arrow
+          }`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -274,47 +274,40 @@ const FloatingTextarea = ({
   value,
   onChange,
   rows = 3,
-  placeholder,
+  required = false,
+  placeholder = " ",
   ...props
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
-
   return (
-    <div className="relative mt-4 sm:mt-6">
+    <div className="relative w-full">
       <textarea
         value={value}
         onChange={onChange}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        id={label}
         rows={rows}
-        className="block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
-                  focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                  placeholder-slate-300 resize-none peer text-sm sm:text-base"
         placeholder={placeholder}
-        style={{
-          transform: "translateZ(0)",
-          position: "relative",
-          zIndex: 2,
-        }}
+        required={required}
+        className="peer block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl
+                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
+                   placeholder-transparent resize-none text-sm sm:text-base"
         {...props}
       />
-      {/* <label
-        className={`absolute left-3 sm:left-4 transition-all duration-200 pointer-events-none text-sm sm:text-base
-          ${
-            isFocused || value
-              ? "top-1.5 sm:top-2 text-xs text-[var(--navy)] font-medium"
-              : "top-3 sm:top-4 text-slate-500"
-          }
-          peer-focus:top-1.5 sm:peer-focus:top-2 peer-focus:text-xs peer-focus:text-[var(--navy)] peer-focus:font-medium`}
-        style={{ "--navy": theme.navy }}
+
+      <label
+        htmlFor={label}
+        className="absolute left-3 sm:left-4 top-3 text-slate-400 text-sm sm:text-base
+                   transition-all duration-200 ease-in-out bg-white px-1 rounded
+                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-slate-400
+                   peer-focus:-top-3 peer-focus:text-[13px] peer-focus:text-[var(--navy)]
+                   peer-not-placeholder-shown:-top-3 peer-not-placeholder-shown:text-[13px] peer-not-placeholder-shown:text-[var(--navy)]"
       >
         {label}
-      </label> */}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
     </div>
   );
 };
 
-// Enhanced Button Component
 const Button = ({
   children,
   variant = "primary",
@@ -530,14 +523,16 @@ const EventDetails = React.forwardRef((props, ref) => {
 // ---------------------------------
 // LOVE STORY
 // ---------------------------------
-const mediaFiles = [
-  "images/story1.jpg",
-  "images/story2.jpg",
-  "images/story3.jpg",
-  "images/story_vdo.mp4",
-];
 
-const LoveStory = React.forwardRef((props, ref) => {
+const LoveStory = React.forwardRef(({ currentPage }, ref) => {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (currentPage !== "story" && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [currentPage]);
+
   return (
     <div
       ref={ref}
@@ -580,9 +575,40 @@ const LoveStory = React.forwardRef((props, ref) => {
             </p>
           </div>
         </div>
-        <div className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 max-w-4xl mx-auto px-2">
+        <div
+          onPointerDownCapture={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          onClick={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          onPointerUpCapture={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          onTouchStartCapture={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          onTouchEndCapture={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          onMouseDownCapture={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          onClickCapture={(e) => {
+            if (e.target.closest("[data-ignore-stop]")) return;
+            e.stopPropagation();
+          }}
+          className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 max-w-4xl mx-auto px-2"
+        >
           <div className="rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
             <video
+              ref={videoRef}
               className="w-full h-full object-cover"
               src="images/story_vdo.mp4"
               controls
@@ -699,13 +725,13 @@ const RSVP = React.forwardRef(
             </div>
           )}
 
-          <p className="text-center text-slate-600 mb-0 sm:mb-6 md:mb-8 max-w-md mx-auto text-xs sm:text-base px-2">
+          <p className="text-center text-slate-600 mb-6 lg:mb-8 max-w-md mx-auto text-xs sm:text-base px-2">
             Let us know you're coming. Submissions save to our Google Sheet.
           </p>
 
           <form
             onSubmit={handleSubmit}
-            className="max-w-2xl mx-auto grid lg:gap-1 sm:gap-4 md:gap-6 overflow-auto pr-1"
+            className="max-w-3xl pt-2 mx-auto grid gap-5 overflow-auto pr-1"
             style={{
               transform: "translateZ(0)",
               position: "relative",
@@ -730,17 +756,14 @@ const RSVP = React.forwardRef(
             onTouchEndCapture={(e) => {
               if (e.target.closest("[data-ignore-stop]")) return;
               e.stopPropagation();
-              // other form logic...
             }}
             onMouseDownCapture={(e) => {
               if (e.target.closest("[data-ignore-stop]")) return;
               e.stopPropagation();
-              // other form logic...
             }}
             onClickCapture={(e) => {
               if (e.target.closest("[data-ignore-stop]")) return;
               e.stopPropagation();
-              // other form logic...
             }}
           >
             {!isAdmin && (
@@ -767,6 +790,7 @@ const RSVP = React.forwardRef(
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
                   <FloatingSelect
+                    label="Attending?"
                     placeholder="Attending?"
                     value={form.attending}
                     onChange={(e) => update("attending", e.target.value)}
@@ -1046,6 +1070,8 @@ const Home = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState("home");
+
   const configured = isSheetsConfigured();
 
   const refreshRSVPs = async () => {
@@ -1123,17 +1149,6 @@ const Home = () => {
     if (rsvps.length) downloadCSV("wedding-rsvps.csv", rsvps);
   };
 
-  const coverImage = useMemo(() => {
-    if (typeof window === "undefined")
-      return "https://images.unsplash.com/photo-1521543832209-13f301cc1c59?auto=format&fit=crop&w=1350&q=60";
-    const params = new URLSearchParams(window.location.search);
-    const img = params.get("img");
-    return (
-      img ||
-      "https://images.unsplash.com/photo-1521543832209-13f301cc1c59?auto=format&fit=crop&w=1350&q=60"
-    );
-  }, []);
-
   const pages = [
     {
       key: "home",
@@ -1148,7 +1163,11 @@ const Home = () => {
       ),
     },
     { key: "details", title: "Event Details", el: <EventDetails /> },
-    { key: "story", title: "Love Story", el: <LoveStory /> },
+    {
+      key: "story",
+      title: "Love Story",
+      el: <LoveStory currentPage={currentPage} />,
+    },
     {
       key: "rsvp",
       title: "RSVP",
@@ -1316,8 +1335,15 @@ const Home = () => {
             ref={bookRef}
             showCover={true}
             mobileScrollSupport={true}
-            useMouseEvents={false}
-            onFlip={(e) => setPage(e.data)}
+            useMouseEvents={true}
+            onFlip={(e) => {
+              setPage(e.data);
+              const pageIndex = e.data;
+              const pageKey = pages[pageIndex]?.key;
+              if (pageKey) {
+                setCurrentPage(pageKey);
+              }
+            }}
           >
             {pages.map((p) => (
               <div key={p.key} className="w-full h-full">
