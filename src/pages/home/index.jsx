@@ -528,6 +528,34 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
   const videoRef = useRef(null);
 
   useEffect(() => {
+    const stopIfInsideIgnore = (e) => {
+      const target = e.target;
+      if (!(target instanceof Element)) return;
+
+      // Only block the *start* of gestures (pointerdown/touchstart)
+      // Let click events through so that video controls still work
+      if (target.closest("[data-ignore-stop]")) {
+        e.stopPropagation();
+        if (typeof e.stopImmediatePropagation === "function") {
+          e.stopImmediatePropagation();
+        }
+      }
+    };
+
+    const events = ["pointerdown", "touchstart", "mousedown"];
+
+    for (const ev of events) {
+      document.addEventListener(ev, stopIfInsideIgnore, { capture: true });
+    }
+
+    return () => {
+      for (const ev of events) {
+        document.removeEventListener(ev, stopIfInsideIgnore, { capture: true });
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (currentPage !== "story" && videoRef.current) {
       videoRef.current.pause();
     }
@@ -576,34 +604,7 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
           </div>
         </div>
         <div
-          onPointerDownCapture={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
-          onPointerUpCapture={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
-          onTouchStartCapture={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
-          onTouchEndCapture={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
-          onMouseDownCapture={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
-          onClickCapture={(e) => {
-            if (e.target.closest("[data-ignore-stop]")) return;
-            e.stopPropagation();
-          }}
+          data-ignore-stop
           className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 max-w-4xl mx-auto px-2"
         >
           <div className="rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
@@ -614,6 +615,9 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
               controls
               loop
               muted
+              playsInline
+              webkit-playsinline="true"
+              preload="metadata"
               poster="images/thumbnail.PNG"
             />
           </div>
