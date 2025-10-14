@@ -614,18 +614,20 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
           className="mt-4 sm:mt-6 md:mt-8 grid grid-cols-1 max-w-4xl mx-auto px-2"
         >
           <div className="rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover"
-              src="images/story_vdo.mp4"
-              controls
-              loop
-              muted
-              playsInline
-              webkit-playsinline="true"
-              preload="metadata"
-              poster="images/thumbnail.PNG"
-            />
+            <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+              <video
+                ref={videoRef}
+                src="/images/story_vdo.mp4"
+                className="absolute top-0 left-0 w-full h-full object-cover"
+                controls
+                loop
+                muted
+                playsInline
+                webkit-playsinline="true"
+                preload="metadata"
+                poster="/images/thumbnail.PNG"
+              />
+            </div>
           </div>
         </div>
 
