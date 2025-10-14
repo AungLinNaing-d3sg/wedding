@@ -532,14 +532,34 @@ const EventDetails = React.forwardRef((props, ref) => {
 
 const LoveStory = React.forwardRef(({ currentPage }, ref) => {
   const videoRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [userInteracted, setUserInteracted] = useState(false);
+  const [showPoster, setShowPoster] = useState(true); // Only show poster initially
 
+  // Handle user interaction to enable video playback
+  useEffect(() => {
+    const handleUserInteraction = () => {
+      setUserInteracted(true);
+      document.removeEventListener("click", handleUserInteraction);
+      document.removeEventListener("touchstart", handleUserInteraction);
+    };
+
+    document.addEventListener("click", handleUserInteraction);
+    document.addEventListener("touchstart", handleUserInteraction);
+
+    return () => {
+      document.removeEventListener("click", handleUserInteraction);
+      document.removeEventListener("touchstart", handleUserInteraction);
+    };
+  }, []);
+
+  // Enhanced gesture blocking for flipbook
   useEffect(() => {
     const stopIfInsideIgnore = (e) => {
       const target = e.target;
       if (!(target instanceof Element)) return;
 
-      // Only block the *start* of gestures (pointerdown/touchstart)
-      // Let click events through so that video controls still work
       if (target.closest("[data-ignore-stop]")) {
         e.stopPropagation();
         if (typeof e.stopImmediatePropagation === "function") {
@@ -561,11 +581,82 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
     };
   }, []);
 
+  // Handle video state when page changes
   useEffect(() => {
-    if (currentPage !== "story" && videoRef.current) {
-      videoRef.current.pause();
+    if (!videoRef.current) return;
+
+    const video = videoRef.current;
+
+    if (currentPage !== "story") {
+      // Pause and reset video when leaving story page
+      video.pause();
+      setIsPlaying(false);
+      setShowPoster(true); // Show poster again when leaving and returning to page
     }
   }, [currentPage]);
+
+  // Handle video play/pause
+  const handleVideoPlayPause = async () => {
+    if (!videoRef.current || !userInteracted) return;
+
+    try {
+      const video = videoRef.current;
+
+      if (video.paused) {
+        await video.play();
+        setIsPlaying(true);
+        setShowPoster(false); // Hide poster when video starts playing
+      } else {
+        video.pause();
+        setIsPlaying(false);
+        // Don't show poster again when pausing, only keep it for initial state
+      }
+    } catch (error) {
+      console.log("Video play/pause failed:", error);
+    }
+  };
+
+  // Handle mute/unmute separately
+  const handleMuteToggle = (e) => {
+    e.stopPropagation(); // Prevent triggering play/pause when clicking mute button
+
+    if (!videoRef.current) return;
+
+    const video = videoRef.current;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+  };
+
+  // Video event listeners
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setShowPoster(false); // Hide poster when video plays
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
+      // Don't show poster when pausing
+    };
+
+    const handleEnded = () => {
+      setIsPlaying(false);
+      // Don't show poster when video ends
+    };
+
+    video.addEventListener("play", handlePlay);
+    video.addEventListener("pause", handlePause);
+    video.addEventListener("ended", handleEnded);
+
+    return () => {
+      video.removeEventListener("play", handlePlay);
+      video.removeEventListener("pause", handlePause);
+      video.removeEventListener("ended", handleEnded);
+    };
+  }, []);
 
   return (
     <div
@@ -615,18 +706,114 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
         >
           <div className="rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-md sm:shadow-lg border-2 border-white hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
             <div className="relative w-full" style={{ aspectRatio: "16/9" }}>
+              {/* Poster Image - Only show for initial state */}
+              {showPoster && (
+                <div className="absolute inset-0 z-10">
+                  <img
+                    src="/images/thumbnail.PNG"
+                    alt="Our love story video thumbnail"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+
+              {/* Video Element */}
               <video
                 ref={videoRef}
                 src="/images/story_vdo.mp4"
-                className="absolute top-0 left-0 w-full h-full object-cover"
-                controls
+                className="absolute top-0 left-0 w-full h-full object-cover cursor-pointer bg-gray-100"
                 loop
-                muted
+                muted={isMuted}
                 playsInline
                 webkit-playsinline="true"
                 preload="metadata"
-                poster="/images/thumbnail.PNG"
+                onClick={handleVideoPlayPause}
+                // iOS-specific attributes
+                x-webkit-airplay="allow"
+                x5-video-player-type="h5"
+                x5-video-player-fullscreen="true"
+                x5-video-orientation="landscape"
+                style={{
+                  backgroundColor: "#f1f5f9", // fallback background color
+                }}
               />
+
+              {/* Custom Video Controls - Always visible when video is playing */}
+              <div
+                className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 sm:p-4 z-20 transition-opacity duration-300 ${
+                  isPlaying ? "opacity-100" : "opacity-0 pointer-events-none"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  {/* Play/Pause Button */}
+                  <button
+                    onClick={handleVideoPlayPause}
+                    className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-white/90 rounded-full hover:bg-white transition-colors"
+                    aria-label={isPlaying ? "Pause" : "Play"}
+                  >
+                    {isPlaying ? (
+                      <svg
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--navy)]"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--navy)]"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Mute/Unmute Button */}
+                  <button
+                    onClick={handleMuteToggle}
+                    className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 bg-white/90 rounded-full hover:bg-white transition-colors"
+                    aria-label={isMuted ? "Unmute" : "Mute"}
+                  >
+                    {isMuted ? (
+                      <svg
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--navy)]"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--navy)]"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Large Play Button Overlay - Only show when video is NOT playing AND poster is visible */}
+              {!isPlaying && showPoster && (
+                <div
+                  className="absolute inset-0 flex items-center justify-center bg-black/20 cursor-pointer z-30"
+                  onClick={handleVideoPlayPause}
+                >
+                  <div className="bg-white/90 rounded-full p-4 sm:p-6 shadow-2xl transition-transform hover:scale-110">
+                    <svg
+                      className="w-8 h-8 sm:w-12 sm:h-12 text-[var(--navy)]"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -640,8 +827,11 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
               >
                 <img
                   className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                  src={`images/story${index + 1}.jpg`}
+                  src={`/images/story${index + 1}.jpg`}
                   alt={`Our story ${index + 1}`}
+                  onError={(e) => {
+                    e.target.src = "/images/thumbnail.PNG"; // fallback to thumbnail if story image fails
+                  }}
                 />
               </div>
             );
@@ -651,6 +841,7 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
     </div>
   );
 });
+
 // ---------------------------------
 // RSVP PAGE
 // ---------------------------------
