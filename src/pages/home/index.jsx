@@ -777,7 +777,7 @@ const RSVP = React.forwardRef(
             }}
           >
             {!isAdmin && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <FloatingInput
                   label="Full Name"
                   value={form.name}
@@ -798,7 +798,7 @@ const RSVP = React.forwardRef(
 
             {!isAdmin && (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <FloatingSelect
                     label="Attending?"
                     placeholder="Attending?"
