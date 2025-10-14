@@ -175,20 +175,22 @@ const FloatingInput = ({
         id={label}
         required={required}
         placeholder={placeholder}
-        className="peer block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl 
-                   focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200
-                   placeholder-transparent text-sm sm:text-base"
+        className="peer block w-full px-3 sm:px-4 lg:py-3 py-2 text-slate-900 bg-white/80 border-2 border-slate-200 rounded-xl sm:rounded-2xl focus:outline-none focus:border-[var(--navy)] focus:bg-white transition-all duration-200 placeholder-transparent text-sm sm:text-base"
         {...props}
       />
 
       <label
         htmlFor={label}
-        className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm sm:text-base
-                   transition-all duration-200 ease-in-out bg-white px-1 rounded
-                   peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2
-                   peer-focus:-top-3 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-[var(--navy)]"
+        className={twMerge(
+          "absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm sm:text-base transition-all duration-200 ease-in-out bg-white px-1 rounded peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-focus:-top-3 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-[var(--navy)]",
+          value &&
+            value !== "" &&
+            "-top-3 translate-y-0 text-[13px] text-[var(--navy)]"
+        )}
       >
-        {label}
+        <span className={twMerge(value && value !== "" && "text-[13px]")}>
+          {label}
+        </span>
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
     </div>
@@ -234,14 +236,15 @@ const FloatingSelect = ({
       {/* Floating label */}
       <label
         htmlFor={label}
-        className={`absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm sm:text-base
-                    transition-all duration-200 ease-in-out bg-white px-1 rounded
-                    ${
-                      value
-                        ? "-top-3 translate-y-0 text-[13px] text-[var(--navy)]"
-                        : ""
-                    }
-                    peer-focus:-top-3 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-[var(--navy)]`}
+        className={twMerge(
+          `absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 
+     text-slate-400 text-sm sm:text-base 
+     transition-all duration-200 ease-in-out 
+     bg-white px-1 rounded 
+     peer-focus:-top-3 peer-focus:translate-y-0 
+     peer-focus:text-[13px] peer-focus:text-[var(--navy)]`,
+          value && "-top-3 translate-y-0 text-[13px] text-[var(--navy)]"
+        )}
       >
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
@@ -295,13 +298,16 @@ const FloatingTextarea = ({
 
       <label
         htmlFor={label}
-        className="absolute left-3 sm:left-4 top-3 text-slate-400 text-sm sm:text-base
-                   transition-all duration-200 ease-in-out bg-white px-1 rounded
-                   peer-placeholder-shown:top-3 peer-placeholder-shown:text-slate-400
-                   peer-focus:-top-3 peer-focus:text-[13px] peer-focus:text-[var(--navy)]
-                   peer-not-placeholder-shown:-top-3 peer-not-placeholder-shown:text-[13px] peer-not-placeholder-shown:text-[var(--navy)]"
+        className={twMerge(
+          "absolute left-3 sm:left-4 top-3 text-slate-400 text-sm sm:text-base transition-all duration-200 ease-in-out bg-white px-1 rounded peer-placeholder-shown:top-3 peer-focus:-top-3 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-[var(--navy)]",
+          value &&
+            value !== "" &&
+            "-top-3 translate-y-0 text-[13px] text-[var(--navy)]"
+        )}
       >
-        {label}
+        <span className={twMerge(value && value !== "" && "text-[13px]")}>
+          {label}
+        </span>
         {required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
     </div>
@@ -1325,7 +1331,7 @@ const Home = () => {
       {/* Main Content */}
       <main
         ref={containerRef}
-        className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6"
+        className="max-w-7xl mx-auto px-3 sm:px-4 py-3 sm:py-4 md:py-6 md:pb-0"
       >
         <div
           className="mx-auto rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl shadow-lg sm:shadow-xl md:shadow-2xl overflow-hidden bg-white/95 backdrop-blur-sm border border-white/20"
@@ -1388,13 +1394,9 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="pb-4 sm:pb-6 md:pb-8 text-center text-white/70 text-xs sm:text-sm px-3 sm:px-4">
-        <div className="max-w-2xl mx-auto">
-          Made with ❤️ in navy & baby blue.
-          <span className="hidden sm:inline">
-            {" "}
-            Tip: Use arrow keys ↔ to flip pages.
-          </span>
-        </div>
+        <span className="hidden sm:inline">
+          Tip: Use arrow keys ↔ to flip pages.
+        </span>
       </footer>
     </div>
   );
