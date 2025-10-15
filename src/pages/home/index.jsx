@@ -1,9 +1,13 @@
 import {
   CalendarLove01Icon,
   ChurchIcon,
+  Hotel02Icon,
   Location08Icon,
   VintageClockIcon,
 } from "hugeicons-react";
+
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+
 import React, { useEffect, useRef, useState } from "react";
 import HTMLFlipBook from "react-pageflip";
 import { twMerge } from "tailwind-merge";
@@ -437,7 +441,7 @@ const EventDetails = React.forwardRef((props, ref) => {
       time: "Time: 3PM - 5PM",
     },
     {
-      labelIcon: <ChurchIcon size={22} color="#64748b" />,
+      labelIcon: <Hotel02Icon size={22} color="#64748b" />,
       label: "Dinner Party",
       dateIcon: <CalendarLove01Icon size={18} color="#475569" />,
       date: "Date: Fri, Nov 7, 2025",
@@ -845,11 +849,71 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
 // ---------------------------------
 // RSVP PAGE
 // ---------------------------------
+
+function SubmitStatusModal({ open, status, onClose }) {
+  if (!open) return null;
+
+  const isSuccess = status === "success";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-3">
+      <div className="w-full max-w-xs sm:max-w-sm rounded-xl sm:rounded-2xl bg-white p-5 sm:p-6 shadow-xl border border-slate-200 text-center relative">
+        {/* Icon */}
+        <div
+          className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 ${
+            isSuccess ? "bg-green-100" : "bg-red-100"
+          }`}
+        >
+          {isSuccess ? (
+            <FaCheckCircle className="text-green-500" />
+          ) : (
+            <FaTimesCircle className="text-red-500" />
+          )}
+        </div>
+
+        {/* Title */}
+        <h3
+          className={`text-lg sm:text-xl font-bold ${
+            isSuccess ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {isSuccess ? "Submitted Successfully" : "Submission Failed"}
+        </h3>
+
+        {/* Message */}
+        <p className="mt-2 text-sm sm:text-base text-slate-600">
+          {isSuccess
+            ? "Thank you! Your RSVP has been received."
+            : "Something went wrong. Please try again."}
+        </p>
+
+        {/* Close button */}
+        <div className="mt-4 sm:mt-5 flex justify-center">
+          <button
+            type="button"
+            onClick={() => {
+              onClose?.();
+            }}
+            className={`px-6 py-2 rounded-lg text-sm font-medium text-white ${
+              isSuccess
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-red-500 hover:bg-red-600"
+            } transition-colors`}
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const RSVP = React.forwardRef(
   (
     {
       isAdmin,
       onSubmit,
+      onResetSaveState,
       entries,
       onExportXLSX,
       onExportCSV,
@@ -873,13 +937,6 @@ const RSVP = React.forwardRef(
       if (!validateRSVP(form))
         return alert("Please enter your name and email.");
       await onSubmit({ ...form, timestamp: new Date().toISOString() });
-      setForm({
-        name: "",
-        email: "",
-        attending: "",
-        guests: 1,
-        message: "",
-      });
     };
 
     return (
@@ -1046,21 +1103,6 @@ const RSVP = React.forwardRef(
                       "Submit RSVP"
                     )}
                   </Button>
-
-                  <div className="flex items-center gap-2">
-                    {saveState === "success" && (
-                      <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-green-600 whitespace-nowrap">
-                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full"></span>
-                        Your data has been saved.
-                      </span>
-                    )}
-                    {saveState === "error" && (
-                      <span className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm font-medium text-red-600">
-                        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-red-500 rounded-full"></span>
-                        Failed
-                      </span>
-                    )}
-                  </div>
                 </div>
               )}
 
@@ -1096,6 +1138,21 @@ const RSVP = React.forwardRef(
               )}
             </div>
           </form>
+
+          <SubmitStatusModal
+            open={saveState === "success" || saveState === "error"}
+            status={saveState}
+            onClose={() => {
+              setForm({
+                name: "",
+                email: "",
+                attending: "",
+                guests: "",
+                message: "",
+              });
+              onResetSaveState?.();
+            }}
+          />
 
           {isAdmin ? (
             <div className="mt-4 sm:mt-6 md:mt-8 max-w-6xl mx-auto">
@@ -1323,17 +1380,17 @@ const Home = () => {
       await addRSVPToSheets(entry);
       setSaveState("success");
       if (isAdmin) await refreshRSVPs();
-      setTimeout(() => {
-        if (saveState === "success") {
-          alert("Thanks! Your RSVP has been recorded.");
-        }
-      }, 100);
+      // setTimeout(() => {
+      //   if (saveState === "success") {
+      //     alert("Thanks! Your RSVP has been recorded.");
+      //   }
+      // }, 100);
     } catch (e) {
       console.error("Add RSVP failed:", e);
       setSaveState("error");
       alert("Sorry, we couldn't save your RSVP. Please check back later.");
     } finally {
-      setTimeout(() => setSaveState("idle"), 3000);
+      // setTimeout(() => setSaveState("idle"), 3000);
     }
   };
 
@@ -1384,6 +1441,7 @@ const Home = () => {
           onRefresh={refreshRSVPs}
           loading={loading}
           saveState={saveState}
+          onResetSaveState={() => setSaveState("idle")}
           configured={configured}
         />
       ),
