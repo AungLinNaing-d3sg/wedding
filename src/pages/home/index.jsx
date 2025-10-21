@@ -513,18 +513,6 @@ const EventDetails = React.forwardRef((props, ref) => {
             </div>
           ))}
         </div>
-        {/* <div className="mt-4 sm:mt-6 md:mt-8 max-w-4xl mx-auto rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-6 bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)] border border-slate-200 shadow-lg">
-          <h3
-            className="font-bold text-base sm:text-lg mb-1 sm:mb-2 flex items-center gap-2"
-            style={{ color: theme.navy }}
-          >
-            <span>👗</span> Dress Code
-          </h3>
-          <p className="text-slate-700 text-sm sm:text-base">
-            <strong>Black-tie optional.</strong> Navy & baby blue accents
-            welcome ✨
-          </p>
-        </div> */}
       </div>
     </div>
   );
@@ -847,7 +835,7 @@ const LoveStory = React.forwardRef(({ currentPage }, ref) => {
 });
 
 // ---------------------------------
-// RSVP PAGE
+// RSVP MODAL DIALOG
 // ---------------------------------
 
 function SubmitStatusModal({ open, status, onClose }) {
@@ -908,334 +896,305 @@ function SubmitStatusModal({ open, status, onClose }) {
   );
 }
 
-const RSVP = React.forwardRef(
-  (
-    {
-      isAdmin,
-      onSubmit,
-      onResetSaveState,
-      entries,
-      onExportXLSX,
-      onExportCSV,
-      onRefresh,
-      loading,
-      saveState,
-      configured,
-    },
-    ref
-  ) => {
-    const [form, setForm] = useState({
+function RSVPDialog({
+  open,
+  onClose,
+  isAdmin,
+  onSubmit,
+  onResetSaveState,
+  entries,
+  onExportXLSX,
+  onExportCSV,
+  onRefresh,
+  loading,
+  saveState,
+  configured,
+}) {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    attending: "",
+    guests: "",
+    message: "",
+  });
+
+  const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateRSVP(form)) return alert("Please enter your name and email.");
+    await onSubmit({ ...form, timestamp: new Date().toISOString() });
+  };
+
+  const handleClose = () => {
+    setForm({
       name: "",
       email: "",
       attending: "",
       guests: "",
       message: "",
     });
-    const update = (k, v) => setForm((f) => ({ ...f, [k]: v }));
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      if (!validateRSVP(form))
-        return alert("Please enter your name and email.");
-      await onSubmit({ ...form, timestamp: new Date().toISOString() });
-    };
+    onClose?.();
+  };
 
-    return (
-      <div
-        ref={ref}
-        className="w-full h-full bg-white flex flex-col overflow-hidden"
-        style={{ pointerEvents: "auto" }}
-      >
-        <div
-          className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)]"
-          style={{
-            "--navy": theme.navy,
-            "--baby": theme.baby,
-            "--accent": theme.accent,
-          }}
-        />
-        <div className="px-3 sm:px-4 py-4 sm:py-6 flex-1 overflow-hidden bg-gradient-to-br from-white to-slate-50">
-          <h2
-            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-2"
-            style={{
-              color: theme.navy,
-              fontFamily: "Playfair Display, serif",
-              background: "linear-gradient(135deg, #0b2545, #8b5cf6)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4">
+      <div className="w-full max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl md:rounded-3xl bg-white p-4 sm:p-5 md:p-6 shadow-xl sm:shadow-2xl border border-slate-200 mx-2">
+        {/* Header */}
+        <div className="text-center mb-4 sm:mb-5">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+            <span className="text-white text-lg sm:text-xl">💌</span>
+          </div>
+          <h3
+            className="text-xl sm:text-2xl font-bold"
+            style={{ color: theme.navy }}
           >
             RSVP
-          </h2>
-
-          {canShowSheetsWarning(configured, isAdmin) && (
-            <div className="mt-2 sm:mt-3 mx-auto max-w-2xl text-xs sm:text-sm p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl bg-yellow-50 text-yellow-800 ring-1 sm:ring-2 ring-yellow-200 flex items-start sm:items-center gap-2 sm:gap-3">
-              <span className="text-base sm:text-lg mt-0.5">⚠️</span>
-              <div className="flex-1">
-                <strong className="text-sm sm:text-base">
-                  Not connected to Google Sheets yet.
-                </strong>{" "}
-                <span className="block sm:inline">
-                  Add your{" "}
-                  <code className="bg-yellow-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">
-                    VITE_SHEETS_WEB_APP_URL
-                  </code>{" "}
-                  and redeploy.
-                </span>
-              </div>
-            </div>
-          )}
-
-          <p className="text-center text-slate-600 mb-6 lg:mb-8 max-w-md mx-auto text-xs sm:text-base px-2">
+          </h3>
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-slate-600">
             Let us know you're coming. Submissions save to our Google Sheet.
           </p>
+        </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="max-w-3xl pt-2 mx-auto grid gap-5 overflow-auto pr-1"
-            style={{
-              transform: "translateZ(0)",
-              position: "relative",
-              zIndex: 1,
-            }}
-            onPointerDownCapture={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
-            onClick={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
-            onPointerUpCapture={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
-            onTouchStartCapture={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
-            onTouchEndCapture={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
-            onMouseDownCapture={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
-            onClickCapture={(e) => {
-              if (e.target.closest("[data-ignore-stop]")) return;
-              e.stopPropagation();
-            }}
+        {canShowSheetsWarning(configured, isAdmin) && (
+          <div className="mt-2 sm:mt-3 mx-auto text-xs sm:text-sm p-2 sm:p-3 rounded-lg sm:rounded-xl bg-yellow-50 text-yellow-800 ring-1 sm:ring-2 ring-yellow-200 flex items-start sm:items-center gap-2 sm:gap-3 mb-4">
+            <span className="text-base sm:text-lg mt-0.5">⚠️</span>
+            <div className="flex-1">
+              <strong className="text-sm sm:text-base">
+                Not connected to Google Sheets yet.
+              </strong>{" "}
+              <span className="block sm:inline">
+                Add your{" "}
+                <code className="bg-yellow-100 px-1 sm:px-2 py-0.5 sm:py-1 rounded text-xs sm:text-sm">
+                  VITE_SHEETS_WEB_APP_URL
+                </code>{" "}
+                and redeploy.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* RSVP Form */}
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          {!isAdmin && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              <FloatingInput
+                label="Full Name"
+                value={form.name}
+                onChange={(e) => update("name", e.target.value)}
+                placeholder="Your full name"
+                required
+              />
+              <FloatingInput
+                label="Email"
+                type="email"
+                value={form.email}
+                onChange={(e) => update("email", e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+          )}
+
+          {!isAdmin && (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                <FloatingSelect
+                  label="Attending?"
+                  placeholder="Attending?"
+                  value={form.attending}
+                  onChange={(e) => update("attending", e.target.value)}
+                  options={["Yes", "No"]}
+                  required
+                />
+                <FloatingInput
+                  label="Guests (including you)"
+                  type="text"
+                  value={form.guests}
+                  onChange={(e) => {
+                    const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
+                    update("guests", Number(onlyNumbers));
+                  }}
+                  placeholder="Number of guests"
+                  required
+                />
+              </div>
+
+              <FloatingTextarea
+                label="Message"
+                value={form.message}
+                onChange={(e) => update("message", e.target.value)}
+                placeholder="Dietary notes, song requests, etc."
+                rows={3}
+              />
+            </>
+          )}
+
+          <div
+            className={twMerge(
+              "flex flex-col sm:flex-row gap-3 sm:gap-4 items-center pt-3",
+              isAdmin ? "justify-center" : "justify-between"
+            )}
           >
             {!isAdmin && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <FloatingInput
-                  label="Full Name"
-                  value={form.name}
-                  onChange={(e) => update("name", e.target.value)}
-                  placeholder="Your full name"
-                  required
-                />
-                <FloatingInput
-                  label="Email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => update("email", e.target.value)}
-                  placeholder="you@example.com"
-                  required
-                />
-              </div>
-            )}
-
-            {!isAdmin && (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <FloatingSelect
-                    label="Attending?"
-                    placeholder="Attending?"
-                    value={form.attending}
-                    onChange={(e) => update("attending", e.target.value)}
-                    options={["Yes", "No"]}
-                    required
-                  />
-                  <FloatingInput
-                    label="Guests (including you)"
-                    type="text"
-                    value={form.guests}
-                    onChange={(e) => {
-                      const onlyNumbers = e.target.value.replace(/[^0-9]/g, "");
-                      update("guests", Number(onlyNumbers));
-                    }}
-                    placeholder="Number of guests"
-                    required
-                  />
-                </div>
-
-                <FloatingTextarea
-                  label="Message"
-                  value={form.message}
-                  onChange={(e) => update("message", e.target.value)}
-                  placeholder="Dietary notes, song requests, etc."
-                  rows={3}
-                />
-              </>
-            )}
-
-            <div
-              className={twMerge(
-                "flex flex-col w-full sm:flex-row gap-3 sm:gap-4 items-center pt-3 sm:pt-4 mb-2",
-                isAdmin ? "justify-center w-full" : ""
-              )}
-            >
-              {!isAdmin && (
-                <div className="flex flex-col lg:flex-row xs:flex-row items-center xs:items-center gap-2 sm:gap-3 md:gap-4 w-full sm:w-auto">
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    disabled={saveState === "saving"}
-                    className="min-w-[120px] sm:min-w-[140px] text-xs sm:text-sm font-semibold py-2.5 sm:py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-2 sm:focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200 w-full xs:w-auto"
-                  >
-                    {saveState === "saving" ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <div className="w-3 h-3 sm:w-4 sm:h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Saving...
-                      </span>
-                    ) : (
-                      "Submit RSVP"
-                    )}
-                  </Button>
-                </div>
-              )}
-
-              {isAdmin && (
-                <div className="flex px-2 items-start justify-start lg:justify-end lg:items-center flex-wrap gap-2 sm:gap-3 w-full sm:w-auto mb-2">
-                  <Button
-                    type="button"
-                    data-ignore-stop
-                    variant="secondary"
-                    onClick={onRefresh}
-                    disabled={loading}
-                    className="text-xs sm:text-sm"
-                  >
-                    {loading ? "Refreshing..." : "Refresh"}
-                  </Button>
-                  <Button
-                    type="button"
-                    data-ignore-stop
-                    variant="accent"
-                    onClick={onExportXLSX}
-                  >
-                    Export Excel
-                  </Button>
-                  <Button
-                    type="button"
-                    data-ignore-stop
-                    variant="baby"
-                    onClick={onExportCSV}
-                  >
-                    Export CSV
-                  </Button>
-                </div>
-              )}
-            </div>
-          </form>
-
-          <SubmitStatusModal
-            open={saveState === "success" || saveState === "error"}
-            status={saveState}
-            onClose={() => {
-              setForm({
-                name: "",
-                email: "",
-                attending: "",
-                guests: "",
-                message: "",
-              });
-              onResetSaveState?.();
-            }}
-          />
-
-          {isAdmin ? (
-            <div className="mt-4 sm:mt-6 md:mt-8 max-w-6xl mx-auto">
-              <h3
-                className="font-bold text-base sm:text-lg mb-2 sm:mb-3 md:mb-4 flex items-center gap-2"
-                style={{ color: theme.navy }}
+              <Button
+                type="submit"
+                variant="primary"
+                disabled={saveState === "saving"}
+                className="min-w-[140px] sm:min-w-[160px] text-sm sm:text-base font-semibold py-2.5 sm:py-3 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-2 sm:focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200 w-full sm:w-auto"
               >
-                <span>📋</span> Current Responses ({entries.length})
-              </h3>
-              <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg border border-slate-200 overflow-hidden">
-                <div className="overflow-x-auto max-h-32 sm:max-h-56 bg-balck md:max-h-[290px]">
-                  <table className="min-w-full text-xs sm:text-sm">
-                    <thead>
-                      <tr className="bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)]">
-                        {[
-                          "name",
-                          "email",
-                          "attending",
-                          "guests",
-                          "message",
-                          "timestamp",
-                        ].map((h) => (
-                          <th
-                            key={h}
-                            className="text-left p-2 sm:p-3 md:p-4 whitespace-nowrap uppercase tracking-wide font-semibold text-slate-700 text-xs"
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {entries.map((r, i) => (
-                        <tr
-                          key={i}
-                          className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                {saveState === "saving" ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Saving...
+                  </span>
+                ) : (
+                  "Submit RSVP"
+                )}
+              </Button>
+            )}
+
+            {isAdmin && (
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 w-full justify-center sm:justify-center items-stretch sm:items-center">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={onRefresh}
+                  disabled={loading}
+                  className="text-xs sm:text-sm w-full sm:w-auto"
+                >
+                  {loading ? "Refreshing..." : "Refresh"}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="accent"
+                  onClick={onExportXLSX}
+                  className="w-full sm:w-auto"
+                >
+                  Export Excel
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="baby"
+                  onClick={onExportCSV}
+                  className="w-full sm:w-auto"
+                >
+                  Export CSV
+                </Button>
+              </div>
+            )}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
+              className="text-xs sm:text-sm w-full sm:w-auto"
+            >
+              Close
+            </Button>
+          </div>
+        </form>
+
+        <SubmitStatusModal
+          open={saveState === "success" || saveState === "error"}
+          status={saveState}
+          onClose={() => {
+            setForm({
+              name: "",
+              email: "",
+              attending: "",
+              guests: "",
+              message: "",
+            });
+            onResetSaveState?.();
+            onClose?.();
+          }}
+        />
+
+        {isAdmin ? (
+          <div className="mt-6 sm:mt-8">
+            <h3
+              className="font-bold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2"
+              style={{ color: theme.navy }}
+            >
+              <span>📋</span> Current Responses ({entries.length})
+            </h3>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-md sm:shadow-lg border border-slate-200 overflow-hidden">
+              <div className="overflow-x-auto max-h-48 sm:max-h-64">
+                <table className="min-w-full text-xs sm:text-sm">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-[var(--baby)] to-[var(--baby2)]">
+                      {[
+                        "name",
+                        "email",
+                        "attending",
+                        "guests",
+                        "message",
+                        "timestamp",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="text-left p-2 sm:p-3 md:p-4 whitespace-nowrap uppercase tracking-wide font-semibold text-slate-700 text-xs"
                         >
-                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap font-medium text-slate-900 max-w-[80px] sm:max-w-none truncate">
-                            {r.name}
-                          </td>
-                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-600 max-w-[100px] sm:max-w-none truncate">
-                            {r.email}
-                          </td>
-                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
-                            <span
-                              className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${
-                                r.attending === "Yes"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {r.attending}
-                            </span>
-                          </td>
-                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-600">
-                            {r.guests}
-                          </td>
-                          <td className="p-2 sm:p-3 md:p-4 text-slate-600 max-w-[120px] sm:max-w-[16rem] truncate">
-                            {r.message}
-                          </td>
-                          <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-500 text-xs">
-                            {r.timestamp
-                              ? new Date(r.timestamp).toLocaleDateString()
-                              : ""}
-                          </td>
-                        </tr>
+                          {h}
+                        </th>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {entries.map((r, i) => (
+                      <tr
+                        key={i}
+                        className="border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors"
+                      >
+                        <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap font-medium text-slate-900 max-w-[80px] sm:max-w-none truncate">
+                          {r.name}
+                        </td>
+                        <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-600 max-w-[100px] sm:max-w-none truncate">
+                          {r.email}
+                        </td>
+                        <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap">
+                          <span
+                            className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-medium ${
+                              r.attending === "Yes"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-red-100 text-red-800"
+                            }`}
+                          >
+                            {r.attending}
+                          </span>
+                        </td>
+                        <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-600">
+                          {r.guests}
+                        </td>
+                        <td className="p-2 sm:p-3 md:p-4 text-slate-600 max-w-[120px] sm:max-w-[16rem] truncate">
+                          {r.message}
+                        </td>
+                        <td className="p-2 sm:p-3 md:p-4 whitespace-nowrap text-slate-500 text-xs">
+                          {r.timestamp
+                            ? new Date(r.timestamp).toLocaleDateString()
+                            : ""}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ) : (
-            <p className="text-center text-slate-500 mt-4 sm:mt-6 md:mt-8 text-sm sm:text-base">
-              Guest list is private. Your response will only be visible to the
-              wedding organizers.
-            </p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="text-center text-slate-500 mt-4 sm:mt-6 text-sm sm:text-base">
+            Guest list is private. Your response will only be visible to the
+            wedding organizers.
+          </p>
+        )}
       </div>
-    );
-  }
-);
+    </div>
+  );
+}
 
 // ---------------------------------
 // ADMIN LOGIN DIALOG
@@ -1316,6 +1275,68 @@ function AdminLoginDialog({ open, onClose, onSuccess }) {
 }
 
 // ---------------------------------
+// RSVP BUTTON PAGE
+// ---------------------------------
+const RSVPButtonPage = React.forwardRef(({ onOpenRSVP }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className="w-full h-full bg-white flex flex-col overflow-hidden"
+    >
+      <div
+        className="h-2 sm:h-3 w-full bg-gradient-to-r from-[var(--navy)] via-[var(--accent)] to-[var(--baby)]"
+        style={{
+          "--navy": theme.navy,
+          "--baby": theme.baby,
+          "--accent": theme.accent,
+        }}
+      />
+      <div className="px-3 sm:px-4 md:px-6 py-4 sm:py-6 flex-1 overflow-auto bg-gradient-to-br from-white to-slate-50 flex flex-col items-center justify-center">
+        <div className="text-center max-w-2xl mx-auto">
+          <h2
+            className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center mb-4 sm:mb-6"
+            style={{
+              color: theme.navy,
+              fontFamily: "Playfair Display, serif",
+              background: "linear-gradient(135deg, #0b2545, #8b5cf6)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            We Can't Wait to Celebrate With You!
+          </h2>
+
+          <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg sm:shadow-xl border border-slate-200 mb-6 sm:mb-8">
+            <p className="text-slate-700 leading-relaxed text-sm sm:text-base md:text-lg mb-4 sm:mb-6">
+              Your presence would mean the world to us as we begin this
+              beautiful journey together. Please let us know if you can join our
+              celebration.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+              <Button
+                onClick={onOpenRSVP}
+                variant="primary"
+                className="min-w-[200px] text-sm sm:text-base font-semibold py-3 sm:py-4 px-6 sm:px-8 text-white rounded-xl bg-gradient-to-r from-[#0b2545] to-[#8b5cf6] hover:from-[#0a1f38] hover:to-[#7c3aed] focus:ring-2 sm:focus:ring-4 focus:ring-[#8b5cf680] transition-all duration-200 transform hover:scale-105 shadow-lg"
+              >
+                💌 RSVP Now
+              </Button>
+            </div>
+          </div>
+
+          <div className="text-slate-600 text-xs sm:text-sm max-w-md mx-auto">
+            <p>Please respond by October 31, 2025.</p>
+            <p className="mt-2 text-slate-500">
+              We look forward to celebrating with you!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+// ---------------------------------
 // Page Home
 // ---------------------------------
 const Home = () => {
@@ -1329,6 +1350,7 @@ const Home = () => {
   const [saveState, setSaveState] = useState("idle");
   const [isAdmin, setIsAdmin] = useState(false);
   const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [showRSVPDialog, setShowRSVPDialog] = useState(false);
 
   const [currentPage, setCurrentPage] = useState("home");
 
@@ -1380,17 +1402,10 @@ const Home = () => {
       await addRSVPToSheets(entry);
       setSaveState("success");
       if (isAdmin) await refreshRSVPs();
-      // setTimeout(() => {
-      //   if (saveState === "success") {
-      //     alert("Thanks! Your RSVP has been recorded.");
-      //   }
-      // }, 100);
     } catch (e) {
       console.error("Add RSVP failed:", e);
       setSaveState("error");
       alert("Sorry, we couldn't save your RSVP. Please check back later.");
-    } finally {
-      // setTimeout(() => setSaveState("idle"), 3000);
     }
   };
 
@@ -1429,22 +1444,9 @@ const Home = () => {
       el: <LoveStory currentPage={currentPage} />,
     },
     {
-      key: "rsvp",
+      key: "rsvp-button",
       title: "RSVP",
-      el: (
-        <RSVP
-          isAdmin={isAdmin}
-          onSubmit={handleRSVPSubmit}
-          entries={rsvps}
-          onExportXLSX={exportXLSX}
-          onExportCSV={exportCSV}
-          onRefresh={refreshRSVPs}
-          loading={loading}
-          saveState={saveState}
-          onResetSaveState={() => setSaveState("idle")}
-          configured={configured}
-        />
-      ),
+      el: <RSVPButtonPage onOpenRSVP={() => setShowRSVPDialog(true)} />,
     },
   ];
 
@@ -1512,6 +1514,11 @@ const Home = () => {
     setIsAdmin(false);
   };
 
+  const handleCloseRSVP = () => {
+    setShowRSVPDialog(false);
+    setSaveState("idle");
+  };
+
   return (
     <div
       className="min-h-screen w-full overflow-x-hidden"
@@ -1577,6 +1584,22 @@ const Home = () => {
         open={showAdminDialog}
         onClose={closeAdminLogin}
         onSuccess={confirmAdminLogin}
+      />
+
+      {/* RSVP Dialog */}
+      <RSVPDialog
+        open={showRSVPDialog}
+        onClose={handleCloseRSVP}
+        isAdmin={isAdmin}
+        onSubmit={handleRSVPSubmit}
+        entries={rsvps}
+        onExportXLSX={exportXLSX}
+        onExportCSV={exportCSV}
+        onRefresh={refreshRSVPs}
+        loading={loading}
+        saveState={saveState}
+        onResetSaveState={() => setSaveState("idle")}
+        configured={configured}
       />
 
       {/* Main Content */}
