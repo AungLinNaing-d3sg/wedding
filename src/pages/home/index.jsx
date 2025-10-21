@@ -944,7 +944,7 @@ function RSVPDialog({
       <div className="w-full max-w-2xl sm:max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl sm:rounded-2xl md:rounded-3xl bg-white p-4 sm:p-5 md:p-6 shadow-xl sm:shadow-2xl border border-slate-200 mx-2">
         {/* Header */}
         <div className="text-center mb-4 sm:mb-5">
-          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-[var(--navy)] to-[var(--accent)] rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto">
             <span className="text-white text-lg sm:text-xl">💌</span>
           </div>
           <h3
@@ -1034,7 +1034,7 @@ function RSVPDialog({
 
           <div
             className={twMerge(
-              "flex flex-col sm:flex-row gap-3 sm:gap-4 items-center pt-3",
+              "flex flex-col sm:flex-row gap-2 sm:gap-3 items-center pt-3",
               isAdmin ? "justify-center" : "justify-between"
             )}
           >
@@ -1057,7 +1057,7 @@ function RSVPDialog({
             )}
 
             {isAdmin && (
-              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 w-full justify-center sm:justify-center items-stretch sm:items-center">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-3 w-full justify-center sm:justify-end items-stretch sm:items-center">
                 <Button
                   type="button"
                   variant="secondary"
